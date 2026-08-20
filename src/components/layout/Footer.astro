@@ -1,0 +1,100 @@
+---
+import { SOCIALS, NAV_LINKS, WHATSAPP_LINK } from '../../data';
+import Logo from '../ui/Logo.astro';
+---
+
+<footer class="bg-background text-text-primary">
+  <div
+    class="border-border-subtle mx-auto max-w-7xl border-t px-5 py-14 sm:px-8"
+  >
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <Logo />
+        <p class="text-text-muted mt-4 max-w-xs text-sm leading-relaxed">
+          Todo para tu hogar. Electrodomésticos para toda la casa, con envío a
+          domicilio en Entre Ríos, Cochabamba.
+        </p>
+        <div class="mt-5 flex gap-3">
+          {
+            SOCIALS.map((s) => (
+              <a
+                href="#"
+                class="border-border-subtle text-text-secondary hover:bg-primary-500 hover:text-primary-950 hover:border-primary-500 grid h-9 w-9 place-items-center rounded-full border text-xs font-bold transition-colors"
+                aria-label={`${s} de SMAL`}
+              >
+                {s}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+      <div>
+        <p class="kicker text-text-muted mb-4 font-bold">Tienda</p>
+        <ul class="text-text-secondary space-y-2 text-sm">
+          {
+            NAV_LINKS.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="hover:text-primary-400 transition-colors"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <p class="kicker text-text-muted mb-4 font-bold">Atención</p>
+        <ul class="text-text-secondary space-y-2.5 text-sm">
+          <li>
+            <a
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener"
+              class="hover:text-text-primary transition-colors"
+            >
+              💬 WhatsApp (principal)
+            </a>
+          </li>
+          <li>
+            <span class="text-text-muted"
+              >Horario: Lun–Sáb 8:30–19:00 · Dom 9:00–13:00</span
+            >
+          </li>
+          <li>
+            <span class="text-text-muted"
+              >Entre Ríos, Carrasco · Cochabamba</span
+            >
+          </li>
+          <li>
+            <span class="text-text-muted">Envío a domicilio disponible</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="kicker text-text-muted mb-4 font-bold">Legales</p>
+        <ul class="text-text-secondary space-y-2.5 text-sm">
+          <li>
+            <a href="#" class="hover:text-text-primary transition-colors"
+              >Privacidad</a
+            >
+          </li>
+          <li>
+            <a href="#" class="hover:text-text-primary transition-colors"
+              >Términos</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="border-border-subtle mt-12 flex flex-col items-center justify-between gap-4 border-t pt-6 sm:flex-row"
+    >
+      <p class="text-text-disabled font-mono text-xs">
+        © 2026 SMAL · Todo para tu hogar · Entre Ríos, Cochabamba
+      </p>
+    </div>
+  </div>
+</footer>

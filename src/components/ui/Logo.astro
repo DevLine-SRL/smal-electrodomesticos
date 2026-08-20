@@ -1,0 +1,39 @@
+---
+interface Props {
+  tagline?: boolean;
+}
+
+const { tagline } = Astro.props;
+---
+
+<a
+  href="/"
+  class="group inline-flex items-center gap-2.5"
+  aria-label="SMAL — Todo para tu hogar"
+>
+  <span
+    class="from-primary-600 via-primary-500 to-accent-400 shadow-primary grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br transition-transform group-hover:scale-105"
+    aria-hidden="true"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      class="text-text-inverse h-5 w-5"
+    >
+      <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"></path>
+    </svg>
+  </span>
+  <span class="flex flex-col leading-none">
+    <span
+      class="font-display text-text-primary text-xl font-extrabold tracking-tight"
+      >SMAL</span
+    >
+    {
+      tagline && (
+        <span class="text-text-muted mt-1 text-[10px] font-semibold tracking-[0.22em] uppercase">
+          Todo para tu hogar
+        </span>
+      )
+    }
+  </span>
+</a>

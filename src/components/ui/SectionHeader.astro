@@ -1,0 +1,39 @@
+---
+interface Props {
+  kicker?: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center';
+  tone?: 'secondary' | 'primary';
+}
+
+const {
+  kicker,
+  title,
+  description,
+  align = 'left',
+  tone = 'secondary',
+} = Astro.props;
+const kickerTone =
+  tone === 'primary' ? 'text-primary-400' : 'text-secondary-400';
+---
+
+<div
+  class={`reveal ${align === 'center' ? 'text-center mx-auto' : 'max-w-2xl'} mb-12`}
+>
+  {kicker && <p class={`kicker font-bold ${kickerTone} mb-3`}>{kicker}</p>}
+  <h2
+    class="font-display text-text-primary text-4xl font-extrabold tracking-tight sm:text-5xl"
+  >
+    {title}
+  </h2>
+  {
+    description && (
+      <p
+        class={`text-text-secondary mt-4 max-w-xl leading-relaxed ${align === 'center' ? 'mx-auto' : ''}`}
+      >
+        {description}
+      </p>
+    )
+  }
+</div>

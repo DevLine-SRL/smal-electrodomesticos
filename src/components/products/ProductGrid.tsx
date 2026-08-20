@@ -1,4 +1,4 @@
-import { PRODUCTS, buildWhatsAppLink } from '../data/products';
+import { PRODUCTS, buildWhatsAppLink } from '../../data/products';
 
 export default function ProductGrid() {
   return (
@@ -6,15 +6,15 @@ export default function ProductGrid() {
       {PRODUCTS.map((product) => (
         <article
           key={product.id}
-          className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+          className="border-border-subtle bg-card shadow-inner-dark hover:bg-card-hover flex flex-col rounded-2xl border p-6 transition-colors"
         >
           <a href={`/products/${product.id}`} className="group">
             <div className="mb-4 text-6xl">{product.emoji}</div>
-            <h3 className="text-lg font-semibold text-gray-900 transition group-hover:text-green-600">
+            <h3 className="text-text-primary group-hover:text-primary-400 text-lg font-semibold transition">
               {product.name}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">SKU: {product.sku}</p>
-            <p className="mt-3 text-2xl font-bold text-green-600">
+            <p className="text-text-muted mt-1 text-sm">SKU: {product.sku}</p>
+            <p className="text-primary-400 mt-3 text-2xl font-bold">
               ${product.price.toLocaleString('es-MX')}
             </p>
           </a>
@@ -22,7 +22,7 @@ export default function ProductGrid() {
             href={buildWhatsAppLink(product)}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-green-500 px-4 py-3 font-semibold text-white transition hover:bg-green-600"
+            className="bg-primary-400 text-primary-950 hover:bg-primary-300 mt-6 inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 font-bold transition"
           >
             <svg
               viewBox="0 0 24 24"

@@ -1,0 +1,43 @@
+---
+import Logo from '../ui/Logo.astro';
+
+interface Props {
+  active?: string;
+}
+
+const { active } = Astro.props;
+
+const ADMIN_LINKS = [
+  { label: 'Dashboard', href: '/admin' },
+  { label: 'Productos', href: '/admin/products' },
+];
+---
+
+<aside class="border-border-subtle bg-background-soft w-64 shrink-0 border-r">
+  <div class="border-border-subtle flex h-16 items-center border-b px-6">
+    <a href="/admin">
+      <Logo />
+    </a>
+  </div>
+  <nav class="text-text-secondary flex flex-col gap-1 p-4 text-sm font-medium">
+    {
+      ADMIN_LINKS.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'hover:bg-background-elevated hover:text-text-primary rounded-lg px-3 py-2 transition',
+            active === link.href && 'bg-background-elevated text-text-primary',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))
+    }
+    <a
+      href="/"
+      class="hover:bg-background-elevated hover:text-text-primary rounded-lg px-3 py-2 transition"
+    >
+      Ver sitio
+    </a>
+  </nav>
+</aside>

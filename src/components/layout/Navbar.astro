@@ -1,0 +1,25 @@
+---
+import { NAV_LINKS } from '../../data';
+import Logo from '../ui/Logo.astro';
+import WhatsAppLink from '../ui/WhatsAppLink.astro';
+---
+
+<header
+  class="bg-background/85 border-border-subtle sticky top-0 z-50 border-b backdrop-blur-md"
+>
+  <nav
+    class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 sm:px-8"
+  >
+    <Logo tagline />
+    <div class="text-text-secondary hidden gap-7 text-sm font-semibold md:flex">
+      {
+        NAV_LINKS.map((link) => (
+          <a href={link.href} class="hover:text-primary-400 transition-colors">
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+    <WhatsAppLink size="md">WhatsApp</WhatsAppLink>
+  </nav>
+</header>

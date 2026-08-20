@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import StatCard from '../../components/admin/StatCard.astro';
+---
+
+<AdminLayout title="Dashboard">
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <StatCard label="Total de productos" value="3" />
+    <StatCard label="Ventas del día" value="$0" />
+    <StatCard label="Consultas de WhatsApp" value="0" />
+  </div>
+</AdminLayout>
