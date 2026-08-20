@@ -1,0 +1,29 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import ProductGrid from '../components/products/ProductGrid.tsx';
+import { PRODUCTS } from '../data/products';
+---
+
+<PublicLayout
+  title="Catálogo completo | SMAL"
+  description="Todos nuestros electrodomésticos disponibles. Precios de contado y asesoría por WhatsApp. Entre Ríos, Cochabamba."
+>
+  <section class="bg-background-soft border-border-subtle border-b py-24">
+    <div class="mx-auto w-full max-w-7xl px-5 sm:px-8">
+      <p class="kicker text-primary-400 font-bold">Catálogo</p>
+      <h1
+        class="font-display reveal mt-3 text-4xl font-extrabold tracking-tight text-white sm:text-6xl"
+      >
+        Todos nuestros productos
+      </h1>
+      <p class="reveal text-text-secondary mt-4 max-w-2xl leading-relaxed">
+        {PRODUCTS.length} productos disponibles. Todos los precios son de contado.
+        Si te interesa alguno, escríbenos y lo recibes en casa.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8">
+    <ProductGrid client:load />
+  </section>
+</PublicLayout>

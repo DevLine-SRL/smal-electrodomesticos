@@ -1,7 +1,5 @@
 ---
 import ProductGrid from '../products/ProductGrid.tsx';
-import { WHATSAPP_LINK } from '../../data';
-import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
 import ArrowRightIcon from 'virtual:icons/lucide/arrow-right?astro';
 ---
 
@@ -24,16 +22,15 @@ import ArrowRightIcon from 'virtual:icons/lucide/arrow-right?astro';
         </p>
       </div>
       <a
-        href={WHATSAPP_LINK}
-        target="_blank"
-        rel="noopener"
+        href="/productos"
         class="reveal text-text-secondary group inline-flex shrink-0 items-center gap-2 font-bold transition-colors hover:text-white"
       >
-        <WhatsAppIcon class="text-primary-400 h-5 w-5" />
+        <span
+          class="text-primary-400 bg-primary-400/15 grid h-8 w-8 place-items-center rounded-full"
+        >
+          <ArrowRightIcon class="h-4 w-4" />
+        </span>
         Ver catálogo completo
-        <ArrowRightIcon
-          class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
-        />
       </a>
     </div>
 

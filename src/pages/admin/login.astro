@@ -1,0 +1,80 @@
+---
+import Base from '../../layouts/Base.astro';
+import Logo from '../../components/ui/Logo.astro';
+import LockIcon from 'virtual:icons/lucide/lock?astro';
+---
+
+<Base title="Iniciar sesión | SMAL Admin">
+  <div
+    class="bg-background flex min-h-screen flex-col items-center justify-center px-5 py-12"
+  >
+    <div class="w-full max-w-sm">
+      <div class="mb-8 flex justify-center">
+        <Logo />
+      </div>
+
+      <div
+        class="border-border-subtle bg-card shadow-inner-dark rounded-3xl border p-8"
+      >
+        <div
+          class="bg-primary-400/15 text-primary-400 mx-auto grid h-12 w-12 place-items-center rounded-2xl"
+        >
+          <LockIcon class="h-6 w-6" />
+        </div>
+
+        <h1
+          class="font-display text-text-primary mt-5 text-center text-2xl font-extrabold tracking-tight"
+        >
+          Acceso de administrador
+        </h1>
+        <p class="text-text-muted mt-1.5 text-center text-sm">
+          Ingresa tus credenciales para continuar.
+        </p>
+
+        <form class="mt-7 flex flex-col gap-5">
+          <label class="flex flex-col gap-1.5">
+            <span class="text-text-secondary text-sm font-semibold">
+              Usuario
+            </span>
+            <input
+              type="text"
+              name="username"
+              autocomplete="username"
+              placeholder="tu_usuario"
+              class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm transition-colors outline-none"
+            />
+          </label>
+
+          <label class="flex flex-col gap-1.5">
+            <span class="text-text-secondary text-sm font-semibold">
+              Contraseña
+            </span>
+            <input
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm transition-colors outline-none"
+            />
+          </label>
+
+          <button
+            type="submit"
+            class="bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent mt-1 w-full rounded-full px-6 py-3 text-sm font-bold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+          >
+            Entrar
+          </button>
+        </form>
+      </div>
+
+      <p class="text-text-muted mt-6 text-center text-sm">
+        <a
+          href="/"
+          class="text-text-secondary hover:text-primary-400 transition-colors"
+        >
+          ← Volver a la tienda
+        </a>
+      </p>
+    </div>
+  </div>
+</Base>
