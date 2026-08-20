@@ -5,9 +5,10 @@ export interface Product {
   sku: string;
   emoji: string;
   description: string;
+  available: boolean;
 }
 
-export const WHATSAPP_NUMBER = '5215512345678';
+export const WHATSAPP_NUMBER = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '';
 
 export const PRODUCTS: Product[] = [
   {
@@ -18,6 +19,7 @@ export const PRODUCTS: Product[] = [
     emoji: '🥤',
     description:
       'Licuadora de vaso de vidrio con cuchillas de acero inoxidable y 3 velocidades.',
+    available: true,
   },
   {
     id: 2,
@@ -27,6 +29,7 @@ export const PRODUCTS: Product[] = [
     emoji: '☕',
     description:
       'Cafetera programable con jarra de vidrio, plato caliente y apagado automático.',
+    available: true,
   },
   {
     id: 3,
@@ -36,10 +39,18 @@ export const PRODUCTS: Product[] = [
     emoji: '🍰',
     description:
       'Batidora de pedestal con bowl de 4.8 litros, 10 velocidades y múltiples accesorios.',
+    available: false,
   },
 ];
 
-export function buildWhatsAppLink(product: Product): string {
-  const message = `Hola, me interesa el siguiente producto:\n\n${product.emoji} ${product.name}\nPrecio: $${product.price.toLocaleString('es-MX')}\nSKU: ${product.sku}`;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppLink(product: Product, url?: string): string {
+  const message = [
+    'Hola, me interesa el siguiente producto:',
+    '',
+    `${product.emoji} ${product.name}`,
+    `Precio: $${product.price.toLocaleString('es-MX')}`,
+    `SKU: ${product.sku}`,
+  ];
+  if (url) message.push(`Enlace: ${url}`);
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message.join('\n'))}`;
 }

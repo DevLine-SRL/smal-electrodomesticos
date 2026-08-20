@@ -1,6 +1,6 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
-import WhatsAppLink from '../../components/ui/WhatsAppLink.astro';
+import ProductContact from '../../components/products/ProductContact.tsx';
 import { PRODUCTS } from '../../data/products';
 
 export function getStaticPaths() {
@@ -43,7 +43,7 @@ const { product } = Astro.props;
       </p>
 
       <div class="mt-8">
-        <WhatsAppLink size="lg">Cotizar por WhatsApp</WhatsAppLink>
+        <ProductContact product={product} client:load />
       </div>
     </div>
   </article>
