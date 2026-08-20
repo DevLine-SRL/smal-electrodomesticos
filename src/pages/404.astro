@@ -1,0 +1,40 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+---
+
+<PublicLayout
+  title="Página no encontrada | SMAL"
+  description="La página que buscas no existe o fue movida. Vuelve al inicio de SMAL."
+>
+  <section
+    class="mx-auto flex w-full max-w-7xl flex-col items-center px-5 py-24 text-center sm:px-8 sm:py-32"
+  >
+    <p class="kicker text-primary-400 font-bold">Error 404</p>
+
+    <h1
+      class="font-display mt-4 text-6xl font-extrabold tracking-tight text-white sm:text-8xl"
+    >
+      4<span class="text-primary-400">0</span>4
+    </h1>
+
+    <h2
+      class="font-display mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl"
+    >
+      Esta página se fue de paseo
+    </h2>
+
+    <p class="text-text-secondary mx-auto mt-5 max-w-md leading-relaxed">
+      Lo que buscas no está aquí o cambió de lugar. Te ayudamos a volver al
+      catálogo o a escribirnos directo.
+    </p>
+
+    <div class="mt-9 flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="/"
+        class="bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-base font-bold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+      >
+        Volver al inicio
+      </a>
+    </div>
+  </section>
+</PublicLayout>
