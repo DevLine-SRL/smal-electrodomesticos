@@ -1,0 +1,42 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <header class="sticky top-0 z-50 border-b border-gray-200 bg-white">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <a href="/" class="text-xl font-bold tracking-tight text-gray-900">
+        Tu Electrodoméstico
+      </a>
+      <ul class="flex items-center gap-6 text-sm font-medium text-gray-600">
+        <li>
+          <a href="/" class="transition hover:text-gray-900">Inicio</a>
+        </li>
+        <li>
+          <a href="/products" class="transition hover:text-gray-900">Productos</a>
+        </li>
+        <li>
+          <a href="/contact" class="transition hover:text-gray-900">Contacto</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+    <slot />
+  </main>
+
+  <footer class="border-t border-gray-200 bg-white">
+    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-gray-500 sm:flex-row">
+      <p>&copy; {new Date().getFullYear()} Tu Electrodoméstico. Todos los derechos reservados.</p>
+      <p>Hecho con Astro</p>
+    </div>
+  </footer>
+</Base>
