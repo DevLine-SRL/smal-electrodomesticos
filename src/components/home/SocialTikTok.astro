@@ -1,0 +1,76 @@
+---
+import { TIKTOK_HANDLE, TIKTOK_URL } from '../../data';
+import TikTokIcon from 'virtual:icons/simple-icons/tiktok?astro';
+import ArrowUpRightIcon from 'virtual:icons/lucide/arrow-up-right?astro';
+
+const previews = [
+  { label: 'Ofertas de la semana' },
+  { label: 'Nuevos ingresos' },
+  { label: 'Consejos para tu hogar' },
+];
+---
+
+<section class="mx-auto w-full max-w-7xl px-5 pt-8 pb-24 sm:px-8">
+  <div
+    class="reveal shadow-inner-dark rounded-[2rem] bg-white/5 p-2 ring-1 ring-white/10"
+  >
+    <div
+      class="bg-gradient-premium relative overflow-hidden rounded-[calc(2rem-0.5rem)] px-7 py-16 text-center sm:px-14"
+    >
+      <div
+        class="bg-primary-500/20 pointer-events-none absolute -top-24 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <span
+        class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white/10 ring-1 ring-white/10"
+      >
+        <TikTokIcon class="h-8 w-8 text-white" />
+      </span>
+
+      <p class="font-display text-primary-400 mt-6 text-2xl font-extrabold">
+        {TIKTOK_HANDLE}
+      </p>
+      <h2
+        class="font-display mx-auto mt-2 max-w-2xl text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+      >
+        Síguenos en TikTok
+      </h2>
+      <p class="text-text-secondary mx-auto mt-4 max-w-md leading-relaxed">
+        Mira nuestros equipos en acción y entérate de las ofertas antes que
+        todos.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+        {
+          previews.map(({ label }) => (
+            <span
+              key={label}
+              class="bg-background/60 text-text-secondary rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 ring-white/10"
+            >
+              {label}
+            </span>
+          ))
+        }
+      </div>
+
+      <div class="mt-10">
+        <a
+          href={TIKTOK_URL}
+          target="_blank"
+          rel="noopener"
+          class="group inline-flex items-center gap-2.5 rounded-full bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-white/90 active:scale-[0.98]"
+        >
+          <TikTokIcon class="h-5 w-5 shrink-0" />
+          Seguir en TikTok
+          <span
+            class="grid h-8 w-8 place-items-center rounded-full bg-black/10 transition-all duration-300 group-hover:translate-x-0.5"
+          >
+            <ArrowUpRightIcon class="h-4 w-4" />
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

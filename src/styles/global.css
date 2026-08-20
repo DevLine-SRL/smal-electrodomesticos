@@ -1,3 +1,6 @@
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/jetbrains-mono';
 @import 'tailwindcss';
 
 @theme {
@@ -221,6 +224,34 @@ body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-size: 0.72rem;
+}
+
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+.whatsapp-float-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--color-primary-500);
+  animation: pulse-ring 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  z-index: -1;
 }
 
 @media (prefers-reduced-motion: reduce) {

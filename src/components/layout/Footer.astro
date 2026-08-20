@@ -1,13 +1,15 @@
 ---
-import { NAV_LINKS, WHATSAPP_LINK } from '../../data';
+import { NAV_LINKS, WHATSAPP_LINK, TIKTOK_URL } from '../../data';
 import Logo from '../ui/Logo.astro';
 import FacebookIcon from 'virtual:icons/simple-icons/facebook?astro';
 import InstagramIcon from 'virtual:icons/simple-icons/instagram?astro';
 import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
+import TikTokIcon from 'virtual:icons/simple-icons/tiktok?astro';
 
 const socials = [
   { label: 'Facebook de SMAL', href: '#', Icon: FacebookIcon },
   { label: 'Instagram de SMAL', href: '#', Icon: InstagramIcon },
+  { label: 'TikTok de SMAL', href: TIKTOK_URL, Icon: TikTokIcon },
   { label: 'WhatsApp de SMAL', href: WHATSAPP_LINK, Icon: WhatsAppIcon },
 ];
 ---
@@ -64,9 +66,10 @@ const socials = [
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener"
-              class="hover:text-text-primary transition-colors"
+              class="hover:text-text-primary flex items-center gap-2 transition-colors"
             >
-              💬 WhatsApp (principal)
+              <WhatsAppIcon class="text-primary-400 h-4 w-4 shrink-0" />
+              WhatsApp (principal)
             </a>
           </li>
           <li>

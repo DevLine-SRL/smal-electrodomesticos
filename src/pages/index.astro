@@ -1,9 +1,32 @@
 ---
 import PublicLayout from '../layouts/PublicLayout.astro';
-import ProductGrid from '../components/products/ProductGrid.tsx';
+import Hero from '../components/home/Hero.astro';
+import PerksMarquee from '../components/home/PerksMarquee.astro';
+import Categories from '../components/home/Categories.astro';
+import FeaturedProducts from '../components/home/FeaturedProducts.astro';
+import WhyUs from '../components/home/WhyUs.astro';
+import HowToBuy from '../components/home/HowToBuy.astro';
+import Testimonials from '../components/home/Testimonials.astro';
+import SocialTikTok from '../components/home/SocialTikTok.astro';
+import Location from '../components/home/Location.astro';
+import FinalCTA from '../components/home/FinalCTA.astro';
+import WhatsAppFloat from '../components/ui/WhatsAppFloat.astro';
 ---
 
-<PublicLayout title="Tu Electrodoméstico | Inicio">
-  <h1 class="mb-8 text-3xl font-bold">Nuestros productos</h1>
-  <ProductGrid client:load />
+<PublicLayout
+  title="SMAL — Todo para tu hogar | Electrodomésticos en Cochabamba"
+  description="Cocinas, refrigeradoras, congeladores, televisores y más. Te asesoramos por WhatsApp y lo recibes en casa. Entre Ríos, Cochabamba."
+  full
+>
+  <Hero />
+  <PerksMarquee />
+  <Categories />
+  <FeaturedProducts />
+  <WhyUs />
+  <HowToBuy />
+  <Testimonials />
+  <SocialTikTok />
+  <Location />
+  <FinalCTA />
+  <WhatsAppFloat />
 </PublicLayout>

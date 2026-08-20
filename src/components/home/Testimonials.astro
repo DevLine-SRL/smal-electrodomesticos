@@ -1,0 +1,73 @@
+---
+import StarIcon from 'virtual:icons/lucide/star?astro';
+
+const testimonials = [
+  {
+    quote:
+      'Me asesoraron por WhatsApp y en dos días ya tenía mi refrigeradora en casa. Todo excelente.',
+    name: 'María G.',
+    place: 'Cliente en Entre Ríos',
+  },
+  {
+    quote:
+      'El mejor precio que encontré en la zona y me la llevaron hasta la puerta. Recomendados.',
+    name: 'Carlos V.',
+    place: 'Cliente en Carrasco',
+  },
+  {
+    quote:
+      'Compré mi cocina con ellos, sin vueltas. Responden rápido y cumplen lo que prometen.',
+    name: 'Roxana P.',
+    place: 'Cliente en Cochabamba',
+  },
+];
+---
+
+<section class="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8">
+  <div class="max-w-2xl">
+    <h2
+      class="font-display reveal text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+    >
+      Clientes que ya renovaron su hogar
+    </h2>
+    <p class="reveal text-text-secondary mt-4 max-w-xl leading-relaxed">
+      <!-- TODO: reemplazar por reseñas reales de clientes -->
+      Lo que cuentan quienes ya compraron en SMAL.
+    </p>
+  </div>
+
+  <div class="mt-12 grid gap-4 md:grid-cols-3">
+    {
+      testimonials.map(({ quote, name, place }, i) => (
+        <figure
+          class="reveal bg-card hover:ring-primary-500/40 hover:bg-card-hover relative flex flex-col gap-5 rounded-3xl p-7 ring-1 ring-white/10 transition-all duration-500"
+          style={`transition-delay: ${i * 80}ms`}
+        >
+          <span
+            class="font-display text-primary-400 text-6xl leading-none"
+            aria-hidden="true"
+          >
+            "
+          </span>
+          <blockquote class="text-text-secondary flex-1 leading-relaxed">
+            {quote}
+          </blockquote>
+          <figcaption class="flex items-center justify-between border-t border-white/5 pt-5">
+            <div>
+              <p class="font-display font-bold text-white">{name}</p>
+              <p class="text-text-muted text-sm">{place}</p>
+            </div>
+            <div class="flex gap-0.5" aria-label="5 de 5 estrellas">
+              {Array.from({ length: 5 }).map((_, s) => (
+                <StarIcon
+                  key={s}
+                  class="text-primary-400 h-4 w-4 fill-current"
+                />
+              ))}
+            </div>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,146 @@
+---
+import { PRODUCTS, WHATSAPP_LINK } from '../../data';
+import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
+import ZapIcon from 'virtual:icons/lucide/zap?astro';
+import ArrowRightIcon from 'virtual:icons/lucide/arrow-right?astro';
+
+const featured = PRODUCTS.find((p) => p.available) ?? PRODUCTS[0];
+---
+
+<section
+  class="relative mx-auto flex w-full max-w-7xl flex-col gap-14 px-5 pt-16 pb-20 sm:px-8 lg:grid lg:grid-cols-12 lg:items-center lg:gap-10 lg:pt-24 lg:pb-28"
+>
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    aria-hidden="true"
+  >
+    <div
+      class="bg-gradient-hero absolute -top-40 right-[-20%] h-[42rem] w-[42rem] rounded-full opacity-30 blur-3xl"
+    >
+    </div>
+    <div
+      class="bg-gradient-dark absolute bottom-[-30%] left-[-15%] h-[30rem] w-[30rem] rounded-full opacity-40 blur-3xl"
+    >
+    </div>
+  </div>
+
+  <div class="flex flex-col items-start lg:col-span-6">
+    <p
+      class="kicker text-primary-400 reveal border-primary-500/30 bg-primary-500/10 inline-flex items-center gap-2 rounded-full border px-3 py-1.5"
+      style="transition-delay: 0ms"
+    >
+      <ZapIcon class="h-3.5 w-3.5" />
+      Electrodomésticos · Cochabamba
+    </p>
+
+    <h1
+      class="font-display reveal mt-6 text-4xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-5xl lg:text-[3.5rem] xl:text-6xl"
+      style="transition-delay: 80ms"
+    >
+      Todo para tu hogar, al{' '}
+      <span class="text-primary-400">mejor precio</span>
+    </h1>
+
+    <p
+      class="reveal text-text-secondary mt-6 max-w-xl text-lg leading-relaxed"
+      style="transition-delay: 160ms"
+    >
+      Cocinas, refrigeradoras, congeladores, televisores y más. Te asesoramos
+      por WhatsApp y lo recibes en casa.
+    </p>
+
+    <div
+      class="reveal mt-8 flex flex-wrap items-center gap-3"
+      style="transition-delay: 240ms"
+    >
+      <a
+        href={WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener"
+        class="group bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 font-bold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+      >
+        <WhatsAppIcon class="h-5 w-5 shrink-0" />
+        Escríbenos por WhatsApp
+      </a>
+      <a
+        href="#categorias"
+        class="text-text-secondary group inline-flex items-center gap-2.5 rounded-full px-5 py-3.5 font-bold transition-colors duration-300 hover:text-white"
+      >
+        Ver categorías
+        <span
+          class="border-border-subtle grid h-8 w-8 place-items-center rounded-full border transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-white/10"
+        >
+          <ArrowRightIcon class="h-4 w-4" />
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <div class="relative lg:col-span-6">
+    <div
+      class="bg-gradient-hero absolute inset-0 m-auto h-[80%] w-[80%] rounded-full opacity-25 blur-3xl"
+    >
+    </div>
+
+    <div
+      class="reveal relative mx-auto w-full max-w-md"
+      style="transition-delay: 200ms"
+    >
+      <div
+        class="shadow-inner-dark rounded-[2rem] bg-white/5 p-2 ring-1 ring-white/10"
+      >
+        <div
+          class="bg-card relative overflow-hidden rounded-[calc(2rem-0.5rem)] p-7 sm:p-9"
+        >
+          <div
+            class="bg-gradient-hero absolute inset-0 opacity-15"
+            aria-hidden="true"
+          >
+          </div>
+
+          <span
+            class="kicker text-primary-400 border-primary-500/30 bg-primary-500/10 inline-block rounded-full border px-3 py-1"
+          >
+            Destacado
+          </span>
+
+          <div
+            class="bg-background-soft mt-6 grid aspect-square w-full place-items-center rounded-2xl text-[6rem]"
+          >
+            <!-- TODO: reemplazar por foto real del producto -->
+            {featured.emoji}
+          </div>
+
+          <h2
+            class="font-display mt-6 text-2xl font-bold tracking-tight text-white"
+          >
+            {featured.name}
+          </h2>
+          <p class="text-text-muted mt-1 text-sm">
+            <span class="text-primary-400 text-2xl font-bold">
+              ${featured.price.toLocaleString('es-MX')}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="floaty bg-card shadow-inner-dark absolute -bottom-5 -left-3 flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/10 sm:-left-8"
+      >
+        <span
+          class="bg-primary-400 text-primary-950 grid h-7 w-7 place-items-center rounded-full"
+        >
+          <WhatsAppIcon class="h-3.5 w-3.5" />
+        </span>
+        Atención rápida
+      </div>
+
+      <div
+        class="floaty bg-secondary-500 text-secondary-950 shadow-secondary absolute -top-5 -right-3 rounded-full px-4 py-2.5 text-sm font-bold sm:-right-8"
+        style="animation-delay: 1.4s"
+      >
+        Envío a domicilio
+      </div>
+    </div>
+  </div>
+</section>

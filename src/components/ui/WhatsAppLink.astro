@@ -4,9 +4,10 @@ import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
 
 interface Props {
   size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
-const { size = 'md' } = Astro.props;
+const { size = 'md', className = '' } = Astro.props;
 
 const sizeClasses = {
   sm: 'px-4 py-2 text-xs gap-2',
@@ -19,7 +20,7 @@ const sizeClasses = {
   href={WHATSAPP_LINK}
   target="_blank"
   rel="noopener"
-  class={`inline-flex items-center justify-center rounded-full bg-primary-400 font-bold text-primary-950 shadow-primary transition-colors hover:bg-primary-300 hover:shadow-accent ${sizeClasses[size]}`}
+  class={`inline-flex items-center justify-center rounded-full bg-primary-400 font-bold text-primary-950 shadow-primary transition-colors hover:bg-primary-300 hover:shadow-accent ${sizeClasses[size]} ${className}`}
 >
   <WhatsAppIcon class="h-4 w-4 shrink-0" />
   <slot />

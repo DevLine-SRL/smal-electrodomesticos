@@ -1,0 +1,31 @@
+---
+import ZapIcon from 'virtual:icons/lucide/zap?astro';
+
+const perks = [
+  'Envío a domicilio',
+  'Garantía y respaldo',
+  'Atención por WhatsApp',
+  'Asesoría personalizada',
+  'Mejor precio',
+  'Entrega coordinada',
+];
+---
+
+<div
+  class="border-border-subtle bg-background-soft overflow-hidden border-y py-5"
+  aria-label="Beneficios de SMAL"
+>
+  <div class="marquee-track flex w-max items-center gap-10 whitespace-nowrap">
+    {
+      [...perks, ...perks].map((perk, i) => (
+        <span
+          key={i}
+          class="text-text-secondary flex items-center gap-10 text-sm font-bold tracking-wide"
+        >
+          <span>{perk}</span>
+          <ZapIcon class="text-primary-400 h-4 w-4" />
+        </span>
+      ))
+    }
+  </div>
+</div>

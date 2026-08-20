@@ -1,0 +1,44 @@
+---
+import ProductGrid from '../products/ProductGrid.tsx';
+import { WHATSAPP_LINK } from '../../data';
+import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
+import ArrowRightIcon from 'virtual:icons/lucide/arrow-right?astro';
+---
+
+<section
+  id="productos"
+  class="bg-background-soft border-border-subtle border-y py-24"
+>
+  <div class="mx-auto w-full max-w-7xl px-5 sm:px-8">
+    <div
+      class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <div class="max-w-2xl">
+        <h2
+          class="font-display reveal text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+        >
+          Lo más vendido
+        </h2>
+        <p class="reveal text-text-secondary mt-4 max-w-xl leading-relaxed">
+          Una muestra de nuestro catálogo. Todos los precios son de contado.
+        </p>
+      </div>
+      <a
+        href={WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener"
+        class="reveal text-text-secondary group inline-flex shrink-0 items-center gap-2 font-bold transition-colors hover:text-white"
+      >
+        <WhatsAppIcon class="text-primary-400 h-5 w-5" />
+        Ver catálogo completo
+        <ArrowRightIcon
+          class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+        />
+      </a>
+    </div>
+
+    <div class="mt-12">
+      <ProductGrid client:load />
+    </div>
+  </div>
+</section>

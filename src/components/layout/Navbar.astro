@@ -1,7 +1,10 @@
 ---
-import { NAV_LINKS } from '../../data';
+import { NAV_LINKS, TIKTOK_URL } from '../../data';
 import Logo from '../ui/Logo.astro';
 import WhatsAppLink from '../ui/WhatsAppLink.astro';
+import TikTokIcon from 'virtual:icons/simple-icons/tiktok?astro';
+import MenuIcon from 'virtual:icons/lucide/menu?astro';
+import XIcon from 'virtual:icons/lucide/x?astro';
 ---
 
 <header
@@ -20,6 +23,136 @@ import WhatsAppLink from '../ui/WhatsAppLink.astro';
         ))
       }
     </div>
-    <WhatsAppLink size="md">WhatsApp</WhatsAppLink>
+    <div class="flex items-center gap-3">
+      <a
+        href={TIKTOK_URL}
+        target="_blank"
+        rel="noopener"
+        aria-label="TikTok de SMAL"
+        class="text-text-secondary border-border-subtle hover:border-primary-500 hover:text-primary-400 hidden h-10 w-10 place-items-center rounded-full border transition-colors md:grid"
+      >
+        <TikTokIcon class="h-4 w-4" />
+      </a>
+      <WhatsAppLink size="sm" className="hidden md:inline-flex"
+        >WhatsApp</WhatsAppLink
+      >
+      <button
+        id="menu-toggle"
+        class="border-border-subtle text-text-secondary grid h-10 w-10 place-items-center rounded-full border transition-colors hover:text-white md:hidden"
+        aria-label="Abrir menú"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+      >
+        <MenuIcon class="h-5 w-5" />
+      </button>
+    </div>
   </nav>
 </header>
+
+<div id="mobile-menu" class="mobile-menu md:hidden" aria-hidden="true" inert>
+  <div class="flex items-center justify-between px-5 py-4 sm:px-8">
+    <Logo tagline />
+    <button
+      id="menu-close"
+      class="border-border-subtle text-text-secondary grid h-10 w-10 place-items-center rounded-full border transition-colors hover:text-white"
+      aria-label="Cerrar menú"
+    >
+      <XIcon class="h-5 w-5" />
+    </button>
+  </div>
+
+  <nav class="flex flex-1 flex-col justify-center gap-1 px-8" aria-label="Menú">
+    {
+      NAV_LINKS.map((link, i) => (
+        <a
+          href={link.href}
+          class="menu-link font-display text-text-primary hover:text-primary-400 py-3 text-4xl font-extrabold tracking-tight transition-colors"
+          style={`transition-delay: ${i * 60}ms`}
+        >
+          {link.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="flex items-center gap-3 px-8 pb-12">
+    <WhatsAppLink className="flex-1">WhatsApp</WhatsAppLink>
+    <a
+      href={TIKTOK_URL}
+      target="_blank"
+      rel="noopener"
+      aria-label="TikTok de SMAL"
+      class="text-text-secondary border-border-subtle hover:border-primary-500 hover:text-primary-400 grid h-12 w-12 shrink-0 place-items-center rounded-full border transition-colors"
+    >
+      <TikTokIcon class="h-5 w-5" />
+    </a>
+  </div>
+</div>
+
+<style>
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    background: rgba(5, 5, 5, 0.97);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0.4s;
+  }
+  .mobile-menu.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .menu-link {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .mobile-menu.is-open .menu-link {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu,
+    .menu-link {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const close = document.getElementById('menu-close');
+  const menu = document.getElementById('mobile-menu');
+  const links = menu.querySelectorAll('a');
+
+  function openMenu() {
+    menu.classList.add('is-open');
+    menu.removeAttribute('inert');
+    menu.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    menu.classList.remove('is-open');
+    menu.setAttribute('inert', '');
+    menu.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  toggle.addEventListener('click', openMenu);
+  close.addEventListener('click', closeMenu);
+  links.forEach((link) => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu();
+  });
+</script>

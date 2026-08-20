@@ -1,0 +1,51 @@
+---
+import { WHATSAPP_LINK, WHATSAPP_NUMBER } from '../../data';
+import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
+---
+
+<section id="contacto" class="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8">
+  <div
+    class="reveal relative mx-auto max-w-3xl overflow-hidden rounded-[2rem] text-center"
+  >
+    <div
+      class="bg-gradient-hero pointer-events-none absolute inset-0 opacity-20"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative px-6 py-16 sm:px-12 sm:py-20">
+      <p class="kicker text-primary-400 font-bold">
+        ¿Listo para renovar tu hogar?
+      </p>
+      <h2
+        class="font-display mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-6xl"
+      >
+        Escríbenos por WhatsApp
+      </h2>
+      <p class="text-text-secondary mx-auto mt-5 max-w-md leading-relaxed">
+        Te respondemos al momento. Sin filas, sin esperas, con la atención que
+        tu tiempo merece.
+      </p>
+
+      <div class="mt-9 flex justify-center">
+        <a
+          href={WHATSAPP_LINK}
+          target="_blank"
+          rel="noopener"
+          class="group bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent inline-flex items-center gap-2.5 rounded-full px-8 py-4 text-lg font-bold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+        >
+          <WhatsAppIcon class="h-6 w-6 shrink-0" />
+          Escribir ahora
+        </a>
+      </div>
+
+      <p class="text-text-muted mt-10 font-mono text-sm">
+        {
+          WHATSAPP_NUMBER
+            ? `WhatsApp: +${WHATSAPP_NUMBER}`
+            : 'WhatsApp: en configuración'
+        }
+      </p>
+    </div>
+  </div>
+</section>

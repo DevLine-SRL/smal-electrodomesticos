@@ -3,7 +3,7 @@ import ProductContact from './ProductContact';
 
 export default function ProductGrid() {
   return (
-    <section className="grid grid-cols-1 gap-6 p-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {PRODUCTS.map((product) => (
         <article
           key={product.id}
@@ -24,6 +24,6 @@ export default function ProductGrid() {
           </div>
         </article>
       ))}
-    </section>
+    </div>
   );
 }

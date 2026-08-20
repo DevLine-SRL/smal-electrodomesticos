@@ -1,0 +1,123 @@
+---
+import { HOURS, MAP } from '../../data';
+import WhatsAppLink from '../ui/WhatsAppLink.astro';
+import MapPinIcon from 'virtual:icons/lucide/map-pin?astro';
+import ClockIcon from 'virtual:icons/lucide/clock?astro';
+import MessageCircleIcon from 'virtual:icons/lucide/message-circle?astro';
+import NavigationIcon from 'virtual:icons/lucide/navigation?astro';
+---
+
+<section
+  id="location"
+  class="bg-background-soft border-border-subtle relative overflow-hidden border-y"
+>
+  <div
+    class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_100%_0%,rgba(229,123,39,0.08),transparent_65%)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-2 lg:items-start"
+  >
+    <div class="reveal">
+      <h2
+        class="font-display text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+      >
+        Estamos en Entre Ríos, Cochabamba.
+      </h2>
+      <p class="text-text-secondary mt-5 max-w-md leading-relaxed">
+        Pásate por la tienda a tocar los productos, o escríbenos por WhatsApp y
+        te llevamos lo que quieras a domicilio.
+      </p>
+
+      <div class="mt-9 space-y-6">
+        <div class="flex items-start gap-4">
+          <span
+            class="bg-secondary-500 text-secondary-950 grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+          >
+            <MapPinIcon class="h-5 w-5" />
+          </span>
+          <div>
+            <p class="font-bold text-white">Dirección</p>
+            <p class="text-text-muted mt-0.5 text-sm">
+              Entre Ríos, provincia Carrasco
+              <br />
+              Cochabamba · Bolivia
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <span
+            class="bg-primary-400 text-primary-950 grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+          >
+            <ClockIcon class="h-5 w-5" />
+          </span>
+          <div>
+            <p class="font-bold text-white">Horarios</p>
+            <ul class="text-text-muted mt-1.5 space-y-1 font-mono text-sm">
+              {
+                HOURS.map(([day, hours]) => (
+                  <li class="flex gap-3">
+                    <span class="w-36">{day}</span>
+                    <span>{hours}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <span
+            class="bg-primary-400 text-primary-950 grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+          >
+            <MessageCircleIcon class="h-5 w-5" />
+          </span>
+          <div>
+            <p class="font-bold text-white">Contacto directo</p>
+            <WhatsAppLink size="md" className="mt-2">
+              Escríbenos por WhatsApp
+            </WhatsAppLink>
+          </div>
+        </div>
+      </div>
+
+      <a
+        href={MAP.gmaps}
+        target="_blank"
+        rel="noopener"
+        class="group text-text-secondary hover:text-primary-300 border-primary-500/40 mt-12 inline-flex items-center gap-2.5 rounded-full border-2 px-6 py-3 text-sm font-bold transition-colors"
+      >
+        Cómo llegar en Google Maps
+        <NavigationIcon
+          class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+        />
+      </a>
+    </div>
+
+    <div class="reveal" style="transition-delay: 120ms">
+      <div
+        class="shadow-inner-dark rounded-[2rem] bg-white/5 p-2 ring-1 ring-white/10"
+      >
+        <div class="relative overflow-hidden rounded-[calc(2rem-0.5rem)]">
+          <iframe
+            title="Mapa de ubicación de SMAL en Entre Ríos, Cochabamba"
+            src={MAP.embedSrc}
+            width="100%"
+            height="440"
+            loading="lazy"
+            class="block min-h-[320px] w-full"
+            style="border:0"></iframe>
+          <div
+            class="bg-background/90 text-text-primary absolute bottom-3 left-3 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold shadow backdrop-blur"
+          >
+            <MapPinIcon class="text-primary-400 h-4 w-4 shrink-0" />
+            SMAL · Entre Ríos, Cochabamba
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

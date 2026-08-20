@@ -1,0 +1,85 @@
+---
+import { WHATSAPP_LINK } from '../../data';
+import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
+import SendIcon from 'virtual:icons/lucide/send?astro';
+import HandshakeIcon from 'virtual:icons/lucide/handshake?astro';
+import PackageOpenIcon from 'virtual:icons/lucide/package-open?astro';
+
+const steps = [
+  {
+    Icon: SendIcon,
+    title: 'Escríbenos por WhatsApp',
+    text: 'Envía un mensaje con el producto que te interesa. Sin llamadas ni filas.',
+  },
+  {
+    Icon: HandshakeIcon,
+    title: 'Te asesoramos',
+    text: 'Confirmamos precio, disponibilidad, garantía y coordinamos la entrega.',
+  },
+  {
+    Icon: PackageOpenIcon,
+    title: 'Recibe en casa',
+    text: 'Paga al recibir o coordina tu envío. Listo para estrenar.',
+  },
+];
+---
+
+<section class="bg-background-soft border-border-subtle border-y py-24">
+  <div class="mx-auto w-full max-w-7xl px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="kicker text-primary-400 reveal mb-3 font-bold">Cómo comprar</p>
+      <h2
+        class="font-display reveal text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+      >
+        Compra por WhatsApp en 3 pasos
+      </h2>
+    </div>
+
+    <div class="relative mt-14 grid gap-10 lg:grid-cols-3 lg:gap-8">
+      <div
+        class="absolute top-7 right-0 left-0 hidden lg:block"
+        aria-hidden="true"
+      >
+        <div class="border-t-2 border-dashed border-white/10"></div>
+      </div>
+
+      {
+        steps.map(({ Icon, title, text }, i) => (
+          <div
+            class="reveal relative flex flex-col gap-5"
+            style={`transition-delay: ${i * 110}ms`}
+          >
+            <div class="relative z-10 flex items-center gap-4">
+              <span class="bg-primary-400 text-primary-950 shadow-primary font-display grid h-14 w-14 place-items-center rounded-full text-xl font-extrabold">
+                {i + 1}
+              </span>
+              <span class="bg-card text-text-secondary grid h-10 w-10 place-items-center rounded-xl ring-1 ring-white/10">
+                <Icon class="h-5 w-5" />
+              </span>
+            </div>
+            <div>
+              <h3 class="font-display text-xl font-bold tracking-tight text-white">
+                {title}
+              </h3>
+              <p class="text-text-muted mt-2 max-w-xs leading-relaxed">
+                {text}
+              </p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="reveal mt-14">
+      <a
+        href={WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener"
+        class="bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary group hover:shadow-accent inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 font-bold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+      >
+        <WhatsAppIcon class="h-5 w-5 shrink-0" />
+        Empezar ahora
+      </a>
+    </div>
+  </div>
+</section>
