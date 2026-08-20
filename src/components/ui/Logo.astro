@@ -1,4 +1,6 @@
 ---
+import LightningBolt from 'virtual:icons/mdi/lightning-bolt?astro';
+
 interface Props {
   tagline?: boolean;
 }
@@ -15,13 +17,7 @@ const { tagline } = Astro.props;
     class="from-primary-600 via-primary-500 to-accent-400 shadow-primary grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br transition-transform group-hover:scale-105"
     aria-hidden="true"
   >
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      class="text-text-inverse h-5 w-5"
-    >
-      <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"></path>
-    </svg>
+    <LightningBolt class="text-text-inverse h-5 w-5" />
   </span>
   <span class="flex flex-col leading-none">
     <span

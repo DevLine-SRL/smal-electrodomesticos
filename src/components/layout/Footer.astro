@@ -1,6 +1,15 @@
 ---
-import { SOCIALS, NAV_LINKS, WHATSAPP_LINK } from '../../data';
+import { NAV_LINKS, WHATSAPP_LINK } from '../../data';
 import Logo from '../ui/Logo.astro';
+import FacebookIcon from 'virtual:icons/simple-icons/facebook?astro';
+import InstagramIcon from 'virtual:icons/simple-icons/instagram?astro';
+import WhatsAppIcon from 'virtual:icons/simple-icons/whatsapp?astro';
+
+const socials = [
+  { label: 'Facebook de SMAL', href: '#', Icon: FacebookIcon },
+  { label: 'Instagram de SMAL', href: '#', Icon: InstagramIcon },
+  { label: 'WhatsApp de SMAL', href: WHATSAPP_LINK, Icon: WhatsAppIcon },
+];
 ---
 
 <footer class="bg-background text-text-primary">
@@ -16,13 +25,15 @@ import Logo from '../ui/Logo.astro';
         </p>
         <div class="mt-5 flex gap-3">
           {
-            SOCIALS.map((s) => (
+            socials.map(({ label, href, Icon }) => (
               <a
-                href="#"
-                class="border-border-subtle text-text-secondary hover:bg-primary-500 hover:text-primary-950 hover:border-primary-500 grid h-9 w-9 place-items-center rounded-full border text-xs font-bold transition-colors"
-                aria-label={`${s} de SMAL`}
+                href={href}
+                class="border-border-subtle text-text-secondary hover:bg-primary-500 hover:text-primary-950 hover:border-primary-500 grid h-9 w-9 place-items-center rounded-full border transition-colors"
+                aria-label={label}
+                target={href.startsWith('http') ? '_blank' : undefined}
+                rel={href.startsWith('http') ? 'noopener' : undefined}
               >
-                {s}
+                <Icon class="h-4 w-4" />
               </a>
             ))
           }
