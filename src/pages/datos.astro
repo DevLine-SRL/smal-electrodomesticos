@@ -1,0 +1,23 @@
+---
+import { supabase } from '../db/supabase';
+
+const { data, error } = await supabase
+  .from('products')
+  .select('id, name, price, status');
+---
+
+{
+  error && <p class="text-red-600">{error.message}</p>
+}
+
+{
+  (
+    <ul>
+      {data?.map((entry) => (
+        <li>
+          {entry.name} — ${entry.price} ({entry.status})
+        </li>
+      ))}
+    </ul>
+  )
+}
