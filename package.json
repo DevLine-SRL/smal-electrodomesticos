@@ -21,6 +21,7 @@
     "supabase:local:types": "supabase gen types typescript --local > src/db/database.types.ts"
   },
   "dependencies": {
+    "@astrojs/node": "^11.1.4",
     "@astrojs/react": "^6.0.4",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
