@@ -1,0 +1,18 @@
+---
+interface Props {
+  shownCount: number;
+  totalProducts: number;
+  page: number;
+  totalPages: number;
+}
+
+const { shownCount, totalProducts, page, totalPages } = Astro.props;
+---
+
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <p class="text-text-secondary text-sm">
+    Mostrando <span class="text-primary-400 font-bold">{shownCount}</span>
+    de <span class="text-primary-400 font-bold">{totalProducts}</span> productos disponibles.
+  </p>
+  <p class="text-text-muted text-xs">Página {page} de {totalPages}</p>
+</div>

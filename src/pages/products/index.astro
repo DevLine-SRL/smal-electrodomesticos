@@ -2,6 +2,10 @@
 export const prerender = false;
 
 import PublicLayout from '../../layouts/PublicLayout.astro';
+import ProductFilters from '../../components/products/ProductFilters.astro';
+import ProductGrid from '../../components/products/ProductGrid.astro';
+import ProductsSummary from '../../components/products/ProductsSummary.astro';
+import Pagination from '../../components/products/Pagination.astro';
 import { getProductCatalog } from '../../services/products/catalog';
 
 const {
@@ -18,7 +22,7 @@ const {
 ---
 
 <PublicLayout
-  title="Catálogo completo | SMAL"
+  title="Catálogo completo"
   description="Todos nuestros electrodomésticos disponibles. Precios de contado y asesoría por WhatsApp. Entre Ríos, Cochabamba."
 >
   <section class="bg-background-soft border-border-subtle border-b py-9">
@@ -37,231 +41,23 @@ const {
   </section>
 
   <section class="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8">
-    <form
-      method="get"
-      class="bg-card border-border-subtle mb-10 grid gap-4 rounded-3xl border p-5 md:grid-cols-[1fr_220px_auto] md:items-end"
-    >
-      <label class="flex flex-col gap-2">
-        <span class="text-text-secondary text-sm font-semibold"
-          >Buscar por nombre</span
-        >
-        <input
-          type="search"
-          name="q"
-          value={searchTerm}
-          placeholder="Ej: Refrigeradora, TV, licuadora"
-          class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm outline-none"
-        />
-      </label>
-
-      <label class="flex flex-col gap-2">
-        <span class="text-text-secondary text-sm font-semibold">Categoría</span>
-        <select
-          name="categoria"
-          class="border-border-subtle bg-background-soft text-text-primary focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm outline-none"
-        >
-          <option value="todas" selected={selectedCategorySlug === 'todas'}>
-            Todas
-          </option>
-          {
-            categories.map((category) => (
-              <option
-                value={category.slug}
-                selected={selectedCategorySlug === category.slug}
-              >
-                {category.name}
-              </option>
-            ))
-          }
-        </select>
-      </label>
-
-      <div class="flex items-center gap-3">
-        <button
-          type="submit"
-          class="bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent inline-flex h-11 items-center rounded-full px-6 text-sm font-bold transition"
-        >
-          Buscar
-        </button>
-        <a
-          href="/products"
-          class="text-text-secondary hover:text-primary-400 text-sm font-semibold transition-colors"
-        >
-          Limpiar
-        </a>
-      </div>
-    </form>
-
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <p class="text-text-secondary text-sm">
-        Mostrando <span class="text-primary-400 font-bold"
-          >{products.length}</span
-        >
-        de <span class="text-primary-400 font-bold">{totalProducts}</span> productos
-        disponibles.
-      </p>
-      <p class="text-text-muted text-xs">Página {page} de {totalPages}</p>
-    </div>
-
-    {
-      products.length === 0 ? (
-        <div class="bg-card border-border-subtle rounded-3xl border px-6 py-14 text-center">
-          <h2 class="font-display text-text-primary text-2xl font-extrabold tracking-tight">
-            No hay productos para mostrar
-          </h2>
-          <p class="text-text-secondary mx-auto mt-3 max-w-lg leading-relaxed">
-            Prueba ajustando tu búsqueda o selecciona otra categoría. También
-            puedes escribirnos por WhatsApp para consultar el ingreso de nuevo
-            stock.
-          </p>
-        </div>
-      ) : (
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => (
-            <article class="border-border-subtle bg-card shadow-inner-dark overflow-hidden rounded-3xl border">
-              {product.imageUrl ? (
-                <div
-                  class="catalog-image bg-background-soft relative aspect-[4/3]"
-                  data-image-card
-                >
-                  <div
-                    class="catalog-skeleton absolute inset-0 grid place-items-center"
-                    data-skeleton
-                  >
-                    <span class="catalog-spinner border-t-primary-400 h-8 w-8 rounded-full border-2 border-white/20" />
-                  </div>
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    loading="lazy"
-                    decoding="async"
-                    class="h-full w-full object-cover opacity-0 transition-opacity duration-500"
-                  />
-                </div>
-              ) : (
-                <div class="bg-background-soft text-text-muted grid aspect-[4/3] place-items-center px-4 text-center">
-                  <div>
-                    <p class="font-mono text-xs tracking-[0.14em] uppercase">
-                      Imagen
-                    </p>
-                    <p class="mt-2 text-sm">Foto en actualización</p>
-                  </div>
-                </div>
-              )}
-
-              <div class="p-5">
-                <p class="text-primary-300 text-xs font-semibold tracking-[0.14em] uppercase">
-                  {product.categoryName}
-                </p>
-                <h3 class="text-text-primary mt-2 text-lg leading-snug font-bold">
-                  {product.name}
-                </h3>
-                <p class="text-primary-400 mt-4 text-2xl font-extrabold">
-                  Bs {product.price.toLocaleString('es-BO')}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-      )
-    }
-
-    {
-      totalPages > 1 && (
-        <nav
-          class="mt-10 flex flex-wrap items-center justify-center gap-2"
-          aria-label="Paginación de catálogo"
-        >
-          {page > 1 && (
-            <a
-              href={buildPageHref(page - 1)}
-              class="border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold transition-colors"
-            >
-              Anterior
-            </a>
-          )}
-
-          {paginationPages.map((num) => (
-            <a
-              href={buildPageHref(num)}
-              aria-current={num === page ? 'page' : undefined}
-              class:list={[
-                'inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-semibold transition-colors',
-                num === page
-                  ? 'bg-primary-400 text-primary-950'
-                  : 'border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 border',
-              ]}
-            >
-              {num}
-            </a>
-          ))}
-
-          {page < totalPages && (
-            <a
-              href={buildPageHref(page + 1)}
-              class="border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold transition-colors"
-            >
-              Siguiente
-            </a>
-          )}
-        </nav>
-      )
-    }
+    <ProductFilters
+      categories={categories}
+      searchTerm={searchTerm}
+      selectedCategorySlug={selectedCategorySlug}
+    />
+    <ProductsSummary
+      shownCount={products.length}
+      totalProducts={totalProducts}
+      page={page}
+      totalPages={totalPages}
+    />
+    <ProductGrid products={products} />
+    <Pagination
+      page={page}
+      totalPages={totalPages}
+      paginationPages={paginationPages}
+      buildPageHref={buildPageHref}
+    />
   </section>
 </PublicLayout>
-
-<script>
-  for (const card of document.querySelectorAll('[data-image-card]')) {
-    const image = card.querySelector('img');
-    if (!(image instanceof HTMLImageElement)) continue;
-
-    const markReady = () => {
-      card.classList.add('is-loaded');
-    };
-
-    if (image.complete) {
-      markReady();
-      continue;
-    }
-
-    image.addEventListener('load', markReady, { once: true });
-    image.addEventListener('error', markReady, { once: true });
-  }
-</script>
-
-<style>
-  .catalog-image.is-loaded img {
-    opacity: 1;
-  }
-
-  .catalog-skeleton {
-    background: linear-gradient(110deg, #181818 10%, #222 50%, #181818 90%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.4s linear infinite;
-    transition: opacity 0.35s ease;
-  }
-
-  .catalog-image.is-loaded .catalog-skeleton {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  @keyframes skeleton-shimmer {
-    0% {
-      background-position: 200% 0;
-    }
-    100% {
-      background-position: -200% 0;
-    }
-  }
-
-  @keyframes spinner-rotate {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .catalog-spinner {
-    animation: spinner-rotate 0.8s linear infinite;
-  }
-</style>

@@ -1,0 +1,66 @@
+---
+import type { Category } from '../../types/producs';
+
+interface Props {
+  categories: Category[];
+  searchTerm: string;
+  selectedCategorySlug: string;
+}
+
+const { categories, searchTerm, selectedCategorySlug } = Astro.props;
+---
+
+<form
+  method="get"
+  class="bg-card border-border-subtle mb-10 grid gap-4 rounded-3xl border p-5 md:grid-cols-[1fr_220px_auto] md:items-end"
+>
+  <label class="flex flex-col gap-2">
+    <span class="text-text-secondary text-sm font-semibold"
+      >Buscar por nombre</span
+    >
+    <input
+      type="search"
+      name="q"
+      value={searchTerm}
+      placeholder="Ej: Refrigeradora, TV, licuadora"
+      class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm outline-none"
+    />
+  </label>
+
+  <label class="flex flex-col gap-2">
+    <span class="text-text-secondary text-sm font-semibold">Categoría</span>
+    <select
+      name="categoria"
+      class="border-border-subtle bg-background-soft text-text-primary focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm outline-none"
+    >
+      <option value="todas" selected={selectedCategorySlug === 'todas'}>
+        Todas
+      </option>
+      {
+        categories.map((category) => (
+          <option
+            value={category.slug}
+            selected={selectedCategorySlug === category.slug}
+          >
+            {category.name}
+          </option>
+        ))
+      }
+    </select>
+  </label>
+
+  <div class="flex items-center gap-3">
+    <button
+      type="submit"
+      class="bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent inline-flex h-11 items-center rounded-full px-6 text-sm font-bold transition"
+    >
+      Buscar
+    </button>
+    <a
+      href="/products"
+      class="text-text-secondary hover:text-primary-400 text-sm font-semibold transition-colors"
+    >
+      Limpiar
+    </a>
+  </div>
+</form>

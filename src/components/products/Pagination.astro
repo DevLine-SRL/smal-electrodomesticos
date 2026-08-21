@@ -1,0 +1,52 @@
+---
+interface Props {
+  page: number;
+  totalPages: number;
+  paginationPages: number[];
+  buildPageHref: (targetPage: number) => string;
+}
+
+const { page, totalPages, paginationPages, buildPageHref } = Astro.props;
+---
+
+{
+  totalPages > 1 && (
+    <nav
+      class="mt-10 flex flex-wrap items-center justify-center gap-2"
+      aria-label="Paginación de catálogo"
+    >
+      {page > 1 && (
+        <a
+          href={buildPageHref(page - 1)}
+          class="border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold transition-colors"
+        >
+          Anterior
+        </a>
+      )}
+
+      {paginationPages.map((num) => (
+        <a
+          href={buildPageHref(num)}
+          aria-current={num === page ? 'page' : undefined}
+          class:list={[
+            'inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm font-semibold transition-colors',
+            num === page
+              ? 'bg-primary-400 text-primary-950'
+              : 'border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 border',
+          ]}
+        >
+          {num}
+        </a>
+      ))}
+
+      {page < totalPages && (
+        <a
+          href={buildPageHref(page + 1)}
+          class="border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold transition-colors"
+        >
+          Siguiente
+        </a>
+      )}
+    </nav>
+  )
+}
