@@ -2,126 +2,19 @@
 export const prerender = false;
 
 import PublicLayout from '../../layouts/PublicLayout.astro';
-import { supabase } from '../../db/supabase';
+import { getProductCatalog } from '../../services/products/catalog';
 
-const PAGE_SIZE = 9;
-
-const requestUrl = new URL(Astro.request.url);
-const searchTerm = requestUrl.searchParams.get('q')?.trim() ?? '';
-const requestedCategory = requestUrl.searchParams.get('categoria') ?? 'todas';
-const requestedPage = Number.parseInt(
-  requestUrl.searchParams.get('page') ?? '1',
-  10,
-);
-
-const { data: categoriesData } = await supabase
-  .from('categories')
-  .select('id, name, slug')
-  .eq('active', true)
-  .order('name');
-
-const categories = categoriesData ?? [];
-const categoryBySlug = new Map(
-  categories.map((category) => [category.slug, category]),
-);
-const selectedCategorySlug =
-  requestedCategory === 'todas' || categoryBySlug.has(requestedCategory)
-    ? requestedCategory
-    : 'todas';
-
-const selectedCategoryId =
-  selectedCategorySlug === 'todas'
-    ? null
-    : (categoryBySlug.get(selectedCategorySlug)?.id ?? null);
-
-const currentPage =
-  Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
-
-let countQuery = supabase
-  .from('products')
-  .select('id', { count: 'exact', head: true })
-  .eq('active', true)
-  .eq('status', 'available');
-
-if (searchTerm) {
-  countQuery = countQuery.ilike('name', `%${searchTerm}%`);
-}
-
-if (selectedCategoryId) {
-  countQuery = countQuery.eq('category_id', selectedCategoryId);
-}
-
-const { count } = await countQuery;
-const totalProducts = count ?? 0;
-const totalPages = Math.max(1, Math.ceil(totalProducts / PAGE_SIZE));
-const page = Math.min(currentPage, totalPages);
-const from = (page - 1) * PAGE_SIZE;
-const to = from + PAGE_SIZE - 1;
-
-let productsQuery = supabase
-  .from('products')
-  .select(
-    'id, name, slug, price, product_images(url, position), categories(name, slug)',
-  )
-  .eq('active', true)
-  .eq('status', 'available')
-  .order('created_at', { ascending: false })
-  .range(from, to);
-
-if (searchTerm) {
-  productsQuery = productsQuery.ilike('name', `%${searchTerm}%`);
-}
-
-if (selectedCategoryId) {
-  productsQuery = productsQuery.eq('category_id', selectedCategoryId);
-}
-
-const { data: rows } = await productsQuery;
-
-const products = (rows ?? []).map((row) => {
-  const category = Array.isArray(row.categories)
-    ? row.categories[0]
-    : row.categories;
-  const images = Array.isArray(row.product_images)
-    ? [...row.product_images].sort((a, b) => a.position - b.position)
-    : [];
-
-  return {
-    id: row.id,
-    name: row.name,
-    slug: row.slug,
-    price: row.price,
-    categoryName: category?.name ?? 'Sin categoría',
-    imageUrl: images[0]?.url ?? null,
-  };
-});
-
-const paginationPages = Array.from(
-  { length: totalPages },
-  (_, i) => i + 1,
-).filter(
-  (num) =>
-    num === 1 || num === totalPages || (num >= page - 1 && num <= page + 1),
-);
-
-function buildPageHref(targetPage: number) {
-  const params = new URLSearchParams();
-
-  if (searchTerm) {
-    params.set('q', searchTerm);
-  }
-
-  if (selectedCategorySlug !== 'todas') {
-    params.set('categoria', selectedCategorySlug);
-  }
-
-  if (targetPage > 1) {
-    params.set('page', String(targetPage));
-  }
-
-  const query = params.toString();
-  return query ? `/products?${query}` : '/products';
-}
+const {
+  categories,
+  products,
+  selectedCategorySlug,
+  searchTerm,
+  page,
+  totalPages,
+  totalProducts,
+  paginationPages,
+  buildPageHref,
+} = await getProductCatalog(new URL(Astro.request.url));
 ---
 
 <PublicLayout
