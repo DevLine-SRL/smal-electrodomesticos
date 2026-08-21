@@ -1,4 +1,4 @@
-import type { ProductListItem } from '../../types/producs';
+import type { ProductListItem } from '../../types/products';
 
 interface ProductRow {
   id: string;

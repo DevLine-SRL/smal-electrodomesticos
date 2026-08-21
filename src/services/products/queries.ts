@@ -1,6 +1,6 @@
 import { supabase } from '../../db/supabase';
 import { mapProductRow } from './mappers';
-import type { ProductListItem } from '../../types/producs';
+import type { ProductListItem } from '../../types/products';
 
 const PAGE_SIZE = 9;
 

@@ -9,7 +9,7 @@ import {
   computePaginationPages,
   buildPageHrefFactory,
 } from './pagination';
-import type { ProductCatalogResult } from '../../types/producs';
+import type { ProductCatalogResult } from '../../types/products';
 
 export const getProductCatalog = async (
   requestUrl: URL,
