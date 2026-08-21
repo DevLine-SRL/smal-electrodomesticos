@@ -15,7 +15,7 @@ Backend versioned in `supabase/` (migrations + seed). Two environments:
 - **Local** (default): Docker stack via `bunx supabase start`. Uses the
   local keys from `.env` (`SUPABASE_URL=http://127.0.0.1:54321`).
 - **Cloud**: to deploy, swap the `.env` keys (commented out
-  there) and use `npm run supabase:deploy`.
+  there) and use `bun run supabase:deploy`.
 
 ### Local workflow
 
