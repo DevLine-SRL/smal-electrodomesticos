@@ -1,4 +1,6 @@
 ---
+export const prerender = true;
+
 import { supabase } from '../db/supabase';
 
 const { data, error } = await supabase
@@ -6,9 +8,7 @@ const { data, error } = await supabase
   .select('id, name, price, status');
 ---
 
-{
-  error && <p class="text-red-600">{error.message}</p>
-}
+{error && <p class="text-red-600">{error.message}</p>}
 
 {
   (
