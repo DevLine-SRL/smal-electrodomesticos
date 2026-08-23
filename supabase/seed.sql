@@ -69,3 +69,65 @@ VALUES
   ((SELECT id FROM public.products WHERE slug = 'cafetera-mr-coffee-12-tazas'), 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80', 0),
   ((SELECT id FROM public.products WHERE slug = 'cafetera-oster-primalatte'), 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80', 0)
 ON CONFLICT DO NOTHING;
+
+-- -----------------------------------------------------------------------------
+-- Administrador de DESARROLLO. Solo para el stack local (`supabase db reset`).
+-- `seed.sql` no se ejecuta en la nube: alli el admin se crea desde el Dashboard.
+-- Credenciales: admin@smal.local / admin123
+-- -----------------------------------------------------------------------------
+INSERT INTO auth.users (
+  instance_id,
+  id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at
+)
+VALUES (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-4000-a000-000000000001',
+  'authenticated',
+  'authenticated',
+  'admin@smal.local',
+  extensions.crypt('admin123', extensions.gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"name":"Administrador SMAL"}'::jsonb,
+  now(),
+  now()
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Identidad de email: sin esta fila `signInWithPassword` no encuentra al usuario.
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  provider_id,
+  provider,
+  identity_data,
+  last_sign_in_at,
+  created_at,
+  updated_at
+)
+VALUES (
+  '00000000-0000-4000-a000-000000000002',
+  '00000000-0000-4000-a000-000000000001',
+  '00000000-0000-4000-a000-000000000001',
+  'email',
+  '{"sub":"00000000-0000-4000-a000-000000000001","email":"admin@smal.local","email_verified":true,"phone_verified":false}'::jsonb,
+  now(),
+  now(),
+  now()
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- El trigger `on_auth_user_created` ya creo el perfil; esto solo lo normaliza
+-- por si el seed se re-ejecuta sobre una base existente.
+UPDATE public.profiles
+SET role = 'admin', active = true, name = 'Administrador SMAL'
+WHERE id = '00000000-0000-4000-a000-000000000001';
