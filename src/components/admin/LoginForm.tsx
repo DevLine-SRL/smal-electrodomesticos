@@ -12,6 +12,14 @@ const INPUT_ERROR_CLASS = 'border-error-500 focus:border-error-500';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Fallos que no son de credenciales: se explican por si mismos al admin. */
+const AUTH_CONFIG_MESSAGES: Record<string, string> = {
+  email_provider_disabled:
+    'El inicio de sesión por email está desactivado en el proyecto de Supabase.',
+  email_not_confirmed: 'Esta cuenta todavía no tiene el correo confirmado.',
+  signup_disabled: 'El registro está deshabilitado en el proyecto de Supabase.',
+};
+
 const validate = (email: string, password: string): FieldErrors => {
   const errors: FieldErrors = {};
   if (!email.trim()) errors.email = 'Ingresa tu correo electrónico.';
@@ -94,6 +102,17 @@ export default function LoginForm({ next }: Props) {
         );
       } else if (response.status === 403) {
         setFormError('Esta cuenta no tiene acceso al panel de administración.');
+      } else if (response.status === 429) {
+        setFormError(
+          'Demasiadas peticiones al servidor de autenticación. Espera un momento.',
+        );
+      } else if (response.status === 502) {
+        // No son credenciales malas: el proveedor de email esta apagado, la
+        // cuenta no esta confirmada o algo similar en la configuracion.
+        setFormError(
+          AUTH_CONFIG_MESSAGES[body.authCode] ??
+            'El servicio de autenticación no está disponible. Avisa al administrador del proyecto.',
+        );
       } else if (response.status === 503) {
         setFormError(
           'No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.',

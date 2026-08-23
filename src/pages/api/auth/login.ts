@@ -69,6 +69,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return json({ code: 'network_error' }, 503);
       }
 
+      if (status === 429) {
+        return json({ code: 'rate_limited' }, 429);
+      }
+
+      // Solo los fallos que son de verdad de credenciales gastan intentos del
+      // bloqueo. Un proveedor apagado o una cuenta sin confirmar son problemas
+      // de configuracion: contarlos dejaria al administrador bloqueado 15
+      // minutos por algo que no puede resolver escribiendo mejor la contraseña.
+      const authCode = signInError?.code;
+      if (authCode && authCode !== 'invalid_credentials') {
+        return json({ code: 'auth_unavailable', authCode }, 502);
+      }
+
       const { data: failureData } = await supabase.rpc(
         'register_failed_login',
         { p_email: email },
