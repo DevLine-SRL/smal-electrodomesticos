@@ -1,5 +1,8 @@
 import { defineMiddleware } from 'astro:middleware';
-import { createSupabaseServerClient } from './db/supabase-server';
+import {
+  createSupabaseServerClient,
+  type ServerSupabaseClient,
+} from './db/supabase-server';
 import {
   ADMIN_LOGIN_PATH,
   buildLoginRedirect,
@@ -19,9 +22,17 @@ const unauthorized = () =>
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { cookies, locals, request, url, redirect } = context;
-  const supabase = createSupabaseServerClient(request, cookies);
 
-  locals.supabase = supabase;
+  // Perezoso y memoizado: las paginas prerenderizadas tambien pasan por aqui
+  // durante el build, y alli `request.headers` no existe. Solo se construye el
+  // cliente cuando alguien lo pide de verdad.
+  let client: ServerSupabaseClient | null = null;
+  const getSupabase = () => {
+    client ??= createSupabaseServerClient(request, cookies);
+    return client;
+  };
+
+  Object.defineProperty(locals, 'supabase', { get: getSupabase });
   locals.user = null;
   locals.profile = null;
 
@@ -37,6 +48,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // getUser() valida el JWT contra el servidor de Auth. getSession() se limita
   // a leer la cookie, que el cliente puede manipular.
+  const supabase = getSupabase();
   const { data } = await supabase.auth.getUser();
   const user = data.user ?? null;
 

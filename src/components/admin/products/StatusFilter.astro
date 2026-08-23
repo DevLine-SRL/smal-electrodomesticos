@@ -1,0 +1,72 @@
+---
+import type { ProductStatusFilter } from '../../../types/products';
+
+interface Props {
+  selectedStatus: ProductStatusFilter;
+  searchTerm: string;
+  totalProducts: number;
+}
+
+const { selectedStatus, searchTerm, totalProducts } = Astro.props;
+
+const OPTIONS: { value: ProductStatusFilter; label: string }[] = [
+  { value: 'todos', label: 'Todos' },
+  { value: 'available', label: 'Disponibles' },
+  { value: 'out_of_stock', label: 'Agotados' },
+  { value: 'sold', label: 'Vendidos' },
+];
+
+const buildHref = (status: ProductStatusFilter) => {
+  const params = new URLSearchParams();
+  if (searchTerm) params.set('q', searchTerm);
+  if (status !== 'todos') params.set('estado', status);
+  const query = params.toString();
+  return query ? `/admin/products?${query}` : '/admin/products';
+};
+---
+
+<div class="flex flex-col gap-4">
+  <form method="GET" action="/admin/products" class="flex flex-wrap gap-2">
+    <input
+      type="search"
+      name="q"
+      value={searchTerm}
+      placeholder="Buscar por nombre…"
+      class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 min-w-0 flex-1 rounded-xl border px-4 py-2.5 text-sm transition-colors outline-none"
+    />
+    {
+      selectedStatus !== 'todos' && (
+        <input type="hidden" name="estado" value={selectedStatus} />
+      )
+    }
+    <button
+      type="submit"
+      class="bg-primary-400 text-primary-950 hover:bg-primary-300 rounded-full px-5 py-2.5 text-sm font-bold transition-colors"
+    >
+      Buscar
+    </button>
+  </form>
+
+  <div class="flex flex-wrap items-center gap-2">
+    {
+      OPTIONS.map((option) => (
+        <a
+          href={buildHref(option.value)}
+          aria-current={option.value === selectedStatus ? 'true' : undefined}
+          class:list={[
+            'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+            option.value === selectedStatus
+              ? 'bg-primary-400 text-primary-950'
+              : 'border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 border',
+          ]}
+        >
+          {option.label}
+        </a>
+      ))
+    }
+
+    <span class="text-text-muted ml-auto text-sm">
+      {totalProducts} producto{totalProducts === 1 ? '' : 's'}
+    </span>
+  </div>
+</div>
