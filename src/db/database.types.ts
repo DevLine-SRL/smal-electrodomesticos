@@ -114,18 +114,21 @@ export type Database = {
       }
       login_attempts: {
         Row: {
+          email: string
           failed_count: number
           ip: unknown
           last_attempt_at: string
           locked_until: string | null
         }
         Insert: {
+          email?: string
           failed_count?: number
-          ip: unknown
+          ip?: unknown
           last_attempt_at?: string
           locked_until?: string | null
         }
         Update: {
+          email?: string
           failed_count?: number
           ip?: unknown
           last_attempt_at?: string
@@ -377,11 +380,20 @@ export type Database = {
     }
     Functions: {
       get_client_ip: { Args: never; Returns: unknown }
-      get_login_lock: { Args: never; Returns: Json }
+      get_login_lock: { Args: { p_email: string }; Returns: Json }
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
-      register_failed_login: { Args: never; Returns: Json }
-      reset_login_attempts: { Args: never; Returns: undefined }
+      normalize_login_email: { Args: { p_email: string }; Returns: string }
+      register_failed_login: { Args: { p_email: string }; Returns: Json }
+      reset_login_attempts: { Args: { p_email: string }; Returns: undefined }
+      set_product_status: {
+        Args: {
+          p_force?: boolean
+          p_new_status: Database["public"]["Enums"]["product_status"]
+          p_product_id: string
+        }
+        Returns: Database["public"]["Tables"]["products"]["Row"]
+      }
     }
     Enums: {
       app_role: "admin"

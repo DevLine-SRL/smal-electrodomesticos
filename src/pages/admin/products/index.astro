@@ -1,0 +1,33 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import AdminProductsTable from '../../../components/admin/products/AdminProductsTable.astro';
+import StatusFilter from '../../../components/admin/products/StatusFilter.astro';
+import ToastHost from '../../../components/admin/ToastHost';
+import Pagination from '../../../components/products/Pagination.astro';
+import { getAdminProducts } from '../../../services/products/adminList';
+
+const catalog = await getAdminProducts(Astro.locals.supabase, Astro.url);
+---
+
+<AdminLayout title="Productos" active="/admin/products">
+  <div class="flex flex-col gap-6">
+    <StatusFilter
+      selectedStatus={catalog.selectedStatus}
+      searchTerm={catalog.searchTerm}
+      totalProducts={catalog.totalProducts}
+    />
+
+    <AdminProductsTable products={catalog.products} />
+
+    <Pagination
+      page={catalog.page}
+      totalPages={catalog.totalPages}
+      paginationPages={catalog.paginationPages}
+      buildPageHref={catalog.buildPageHref}
+    />
+  </div>
+
+  <ToastHost client:load />
+</AdminLayout>

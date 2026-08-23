@@ -1,0 +1,82 @@
+---
+import ProductStatusControl from './ProductStatusControl';
+import type { AdminProductListItem } from '../../../types/products';
+
+interface Props {
+  products: AdminProductListItem[];
+}
+
+const { products } = Astro.props;
+
+const formatPrice = (price: number) =>
+  `Bs ${price.toLocaleString('es-BO', { minimumFractionDigits: 2 })}`;
+---
+
+{
+  products.length === 0 ? (
+    <p class="border-border-subtle text-text-muted rounded-2xl border border-dashed px-6 py-12 text-center text-sm">
+      No hay productos que coincidan con el filtro.
+    </p>
+  ) : (
+    <div class="border-border-subtle bg-card overflow-x-auto rounded-2xl border">
+      <table class="w-full min-w-[720px] border-collapse text-left text-sm">
+        <thead class="border-border-subtle text-text-muted border-b text-xs uppercase">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Producto</th>
+            <th class="px-4 py-3 font-semibold">Categoría</th>
+            <th class="px-4 py-3 font-semibold">Precio</th>
+            <th class="px-4 py-3 font-semibold">Stock</th>
+            <th class="px-4 py-3 font-semibold">Estado</th>
+            <th class="px-4 py-3 font-semibold">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr class="border-border-subtle border-b last:border-b-0">
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  {product.imageUrl ? (
+                    <img
+                      src={product.imageUrl}
+                      alt=""
+                      loading="lazy"
+                      class="bg-background-elevated h-10 w-10 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div class="bg-background-elevated h-10 w-10 shrink-0 rounded-lg" />
+                  )}
+                  <span class="text-text-primary font-medium">
+                    {product.name}
+                  </span>
+                </div>
+              </td>
+              <td class="text-text-secondary px-4 py-3">
+                {product.categoryName}
+              </td>
+              <td class="text-text-secondary px-4 py-3 whitespace-nowrap">
+                {formatPrice(product.price)}
+              </td>
+              <td class="text-text-secondary px-4 py-3">{product.quantity}</td>
+              <td class="px-4 py-3">
+                <ProductStatusControl
+                  client:idle
+                  productId={product.id}
+                  productName={product.name}
+                  initialStatus={product.status}
+                  initialSource={product.lastStatusSource}
+                />
+              </td>
+              {/*
+                Punto de extension para HU-03/04/05/06/07: cada historia agrega
+                aqui su accion sin tocar el resto de la tabla.
+              */}
+              <td class="px-4 py-3">
+                <slot name="row-actions" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}

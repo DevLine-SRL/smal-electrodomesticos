@@ -1,9 +1,18 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Base from '../../layouts/Base.astro';
 import Logo from '../../components/ui/Logo.astro';
+import LoginForm from '../../components/admin/LoginForm';
+import { sanitizeNextPath } from '../../services/auth/session';
 import LockIcon from 'virtual:icons/lucide/lock?astro';
+
+// Quien ya tiene sesion valida no deberia ver el formulario.
+if (Astro.locals.profile) {
+  return Astro.redirect(sanitizeNextPath(Astro.url.searchParams.get('next')));
+}
+
+const next = sanitizeNextPath(Astro.url.searchParams.get('next'));
 ---
 
 <Base title="Iniciar sesión | SMAL Admin">
@@ -33,40 +42,7 @@ import LockIcon from 'virtual:icons/lucide/lock?astro';
           Ingresa tus credenciales para continuar.
         </p>
 
-        <form class="mt-7 flex flex-col gap-5">
-          <label class="flex flex-col gap-1.5">
-            <span class="text-text-secondary text-sm font-semibold">
-              Usuario
-            </span>
-            <input
-              type="text"
-              name="username"
-              autocomplete="username"
-              placeholder="tu_usuario"
-              class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm transition-colors outline-none"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1.5">
-            <span class="text-text-secondary text-sm font-semibold">
-              Contraseña
-            </span>
-            <input
-              type="password"
-              name="password"
-              autocomplete="current-password"
-              placeholder="••••••••"
-              class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm transition-colors outline-none"
-            />
-          </label>
-
-          <button
-            type="submit"
-            class="bg-primary-400 text-primary-950 hover:bg-primary-300 shadow-primary hover:shadow-accent mt-1 w-full rounded-full px-6 py-3 text-sm font-bold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
-          >
-            Entrar
-          </button>
-        </form>
+        <LoginForm client:load next={next} />
       </div>
 
       <p class="text-text-muted mt-6 text-center text-sm">
