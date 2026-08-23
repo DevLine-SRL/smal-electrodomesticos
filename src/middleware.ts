@@ -18,8 +18,8 @@ const unauthorized = () =>
   });
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { cookies, locals, url, redirect } = context;
-  const supabase = createSupabaseServerClient(cookies);
+  const { cookies, locals, request, url, redirect } = context;
+  const supabase = createSupabaseServerClient(request, cookies);
 
   locals.supabase = supabase;
   locals.user = null;
