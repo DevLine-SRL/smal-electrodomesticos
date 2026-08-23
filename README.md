@@ -58,3 +58,24 @@ Postgres `postgresql://postgres:postgres@127.0.0.1:54322/postgres`.
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## 🔐 Panel de administración
+
+Las rutas `/admin/*` y `/api/admin/*` están protegidas en el servidor por
+`src/middleware.ts`: sin una sesión de administrador activa, las páginas
+redirigen a `/admin/login` y los endpoints responden `401`.
+
+La sesión vive en cookies `httpOnly` gestionadas por `@supabase/ssr` y dura 24h
+(`jwt_expiry` en `supabase/config.toml`). Tras 5 intentos fallidos con el mismo
+email hay un bloqueo temporal de 15 minutos.
+
+El registro de usuarios está deshabilitado a propósito: el trigger
+`handle_new_user()` asigna `role = 'admin'`, así que dejarlo abierto permitiría
+que cualquiera se volviera administrador. Los administradores se crean desde el
+Dashboard de Supabase (o vía `seed.sql` en local).
+
+Credenciales del stack **local** (`bunx supabase db reset`):
+
+```
+admin@smal.local / admin123
+```
