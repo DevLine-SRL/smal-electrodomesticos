@@ -1,13 +1,51 @@
 ---
+import LogOutIcon from 'virtual:icons/lucide/log-out?astro';
+
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+const profile = Astro.locals.profile;
 ---
 
 <header
-  class="border-border-subtle bg-background-soft flex h-16 items-center justify-between border-b px-6"
+  class="border-border-subtle bg-background-soft flex h-16 items-center justify-between gap-4 border-b px-6"
 >
   <h1 class="text-text-primary text-lg font-semibold">{title}</h1>
+
+  <div class="flex items-center gap-4">
+    {
+      profile && (
+        <span class="text-text-muted hidden text-sm sm:inline">
+          {profile.name ?? profile.email}
+        </span>
+      )
+    }
+
+    <form
+      method="POST"
+      action="/api/auth/logout"
+      data-logout-form
+      class="flex items-center"
+    >
+      <button
+        type="submit"
+        class="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors"
+      >
+        <LogOutIcon class="h-4 w-4" />
+        <span class="hidden sm:inline">Cerrar sesión</span>
+      </button>
+    </form>
+  </div>
 </header>
+
+<script>
+  document
+    .querySelector<HTMLFormElement>('[data-logout-form]')
+    ?.addEventListener('submit', (event) => {
+      if (!window.confirm('¿Seguro que quieres cerrar sesión?')) {
+        event.preventDefault();
+      }
+    });
+</script>

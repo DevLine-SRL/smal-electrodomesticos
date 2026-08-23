@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getAdminProfile, sanitizeNextPath } from '../../../services/auth/session';
+import {
+  getAdminProfile,
+  sanitizeNextPath,
+} from '../../../services/auth/session';
 
 export const prerender = false;
 
