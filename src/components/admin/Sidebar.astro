@@ -7,36 +7,96 @@ interface Props {
 
 const { active } = Astro.props;
 
+const currentPath =
+  active ?? Astro.url.pathname;
+
 const ADMIN_LINKS = [
-  { label: 'Dashboard', href: '/admin' },
-  { label: 'Productos', href: '/admin/products' },
+  {
+    label: 'Dashboard',
+    href: '/admin',
+    icon: '⌂',
+  },
+  {
+    label: 'Productos',
+    href: '/admin/products',
+    icon: '▦',
+  },
+  {
+    label: 'Nuevo producto',
+    href: '/admin/products/new',
+    icon: '+',
+  },
 ];
+
+function isActive(
+  href: string,
+): boolean {
+  return currentPath === href;
+}
 ---
 
-<aside class="border-border-subtle bg-background-soft w-64 shrink-0 border-r">
-  <div class="border-border-subtle flex h-16 items-center border-b px-6">
-    <a href="/admin">
+<aside
+  class="border-border-subtle bg-background-soft w-64 shrink-0 border-r"
+>
+  <div
+    class="border-border-subtle flex h-16 items-center border-b px-6"
+  >
+    <a
+      href="/admin"
+      aria-label="Ir al dashboard"
+    >
       <Logo />
     </a>
   </div>
-  <nav class="text-text-secondary flex flex-col gap-1 p-4 text-sm font-medium">
+
+  <nav
+    class="text-text-secondary flex flex-col gap-1 p-4 text-sm font-medium"
+    aria-label="Navegación administrativa"
+  >
     {
       ADMIN_LINKS.map((link) => (
         <a
           href={link.href}
+          aria-current={
+            isActive(link.href)
+              ? 'page'
+              : undefined
+          }
           class:list={[
-            'hover:bg-background-elevated hover:text-text-primary rounded-lg px-3 py-2 transition',
-            active === link.href && 'bg-background-elevated text-text-primary',
+            'flex items-center gap-3 rounded-lg px-3 py-2.5 transition',
+            'hover:bg-background-elevated hover:text-text-primary',
+            isActive(link.href) &&
+              'bg-background-elevated text-text-primary',
           ]}
         >
+          <span
+            class="flex w-5 items-center justify-center"
+            aria-hidden="true"
+          >
+            {link.icon}
+          </span>
+
           {link.label}
         </a>
       ))
     }
+
+    <div
+      class="border-border-subtle my-3 border-t"
+    >
+    </div>
+
     <a
       href="/"
-      class="hover:bg-background-elevated hover:text-text-primary rounded-lg px-3 py-2 transition"
+      class="hover:bg-background-elevated hover:text-text-primary flex items-center gap-3 rounded-lg px-3 py-2.5 transition"
     >
+      <span
+        class="flex w-5 items-center justify-center"
+        aria-hidden="true"
+      >
+        ↗
+      </span>
+
       Ver sitio
     </a>
   </nav>
