@@ -75,6 +75,8 @@ ON CONFLICT DO NOTHING;
 -- `seed.sql` no se ejecuta en la nube: alli el admin se crea desde el Dashboard.
 -- Credenciales: admin@smal.local / admin123
 -- -----------------------------------------------------------------------------
+-- Los tokens van vacios (''), no NULL: GoTrue los escanea como string no nulo
+-- y un NULL produce 500 "converting NULL to string is unsupported" al loguear.
 INSERT INTO auth.users (
   instance_id,
   id,
@@ -82,6 +84,14 @@ INSERT INTO auth.users (
   role,
   email,
   encrypted_password,
+  confirmation_token,
+  recovery_token,
+  email_change,
+  email_change_token_new,
+  email_change_token_current,
+  reauthentication_token,
+  phone_change,
+  phone_change_token,
   email_confirmed_at,
   raw_app_meta_data,
   raw_user_meta_data,
@@ -95,6 +105,14 @@ VALUES (
   'authenticated',
   'admin@smal.local',
   extensions.crypt('admin123', extensions.gen_salt('bf')),
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
   now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
   '{"name":"Administrador SMAL"}'::jsonb,

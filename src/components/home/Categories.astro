@@ -57,9 +57,7 @@ const categories = [
     </p>
   </div>
 
-  <div
-    class="mt-12 grid gap-4 sm:grid-cols-2 lg:auto-rows-[11rem] lg:grid-cols-3"
-  >
+  <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:auto-rows-44 lg:grid-cols-3">
     {
       categories.map(({ name, tag, Icon, big, wide }, i) => (
         <a
@@ -75,7 +73,7 @@ const categories = [
             class={`pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${
               big
                 ? 'bg-gradient-premium'
-                : 'from-primary-600/20 bg-gradient-to-br to-transparent'
+                : 'from-primary-600/20 bg-linear-to-br to-transparent'
             }`}
             aria-hidden="true"
           />

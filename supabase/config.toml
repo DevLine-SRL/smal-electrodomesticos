@@ -217,9 +217,6 @@ web3 = 30
 # secret = ""
 
 [auth.email]
-# Allow/disallow email logins. Sin esto el proveedor puede quedar apagado y
-# `signInWithPassword` responde 422 email_provider_disabled.
-enabled = true
 # Allow/disallow new user signups via email to your project.
 enable_signup = false
 # If enabled, a user will be required to confirm any email change on both the old, and new email
@@ -318,6 +315,14 @@ max_frequency = "5s"
 # [auth.mfa.web_authn]
 # enroll_enabled = true
 # verify_enabled = true
+
+# Proveedor email: sin `enabled = true` aqui, `signInWithPassword` responde
+# 422 email_provider_disabled. El CLI exige client_id/secret aunque email no
+# los usa; se ponen placeholders.
+[auth.external.email]
+enabled = true
+client_id = "email"
+secret = "email"
 
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,

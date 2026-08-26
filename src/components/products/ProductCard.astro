@@ -14,7 +14,7 @@ const { product } = Astro.props;
   {
     product.imageUrl ? (
       <div
-        class="catalog-image bg-background-soft relative aspect-[4/3]"
+        class="catalog-image bg-background-soft relative aspect-4/3"
         data-image-card
       >
         <div
@@ -32,7 +32,7 @@ const { product } = Astro.props;
         />
       </div>
     ) : (
-      <div class="bg-background-soft text-text-muted grid aspect-[4/3] place-items-center px-4 text-center">
+      <div class="bg-background-soft text-text-muted grid aspect-4/3 place-items-center px-4 text-center">
         <div>
           <p class="font-mono text-xs tracking-[0.14em] uppercase">Imagen</p>
           <p class="mt-2 text-sm">Foto en actualización</p>
