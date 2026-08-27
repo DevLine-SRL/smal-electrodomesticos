@@ -54,7 +54,9 @@ export interface AdminProductListItem {
 
 export interface AdminProductsResult {
   products: AdminProductListItem[];
+  categories: Category[];
   selectedStatus: ProductStatusFilter;
+  selectedCategorySlug: string;
   searchTerm: string;
   page: number;
   totalPages: number;

@@ -1,8 +1,10 @@
 ---
-import type { ProductStatusFilter } from '../../../types/products';
+import type { Category, ProductStatusFilter } from '../../../types/products';
 
 interface Props {
   selectedStatus: ProductStatusFilter;
+  selectedCategorySlug: string;
+  categories: Category[];
   searchTerm: string;
   totalProducts: number;
   view?: 'grid' | 'list';
@@ -11,6 +13,8 @@ interface Props {
 
 const {
   selectedStatus,
+  selectedCategorySlug,
+  categories,
   searchTerm,
   totalProducts,
   view = 'grid',
@@ -26,11 +30,13 @@ const OPTIONS: { value: ProductStatusFilter; label: string }[] = [
 
 const buildHref = (
   status: ProductStatusFilter,
+  categorySlug: string = selectedCategorySlug,
   targetView: 'grid' | 'list' = view,
 ) => {
   const params = new URLSearchParams();
   if (searchTerm) params.set('q', searchTerm);
   if (status !== 'todos') params.set('estado', status);
+  if (categorySlug !== 'todas') params.set('categoria', categorySlug);
   if (currentPage > 1) params.set('page', String(currentPage));
   params.set('vista', targetView);
   const query = params.toString();
@@ -39,7 +45,7 @@ const buildHref = (
 ---
 
 <div class="flex flex-col gap-4">
-  <form method="GET" action="/admin/products" class="flex gap-2">
+  <form method="GET" action="/admin/products" class="flex flex-col gap-2 sm:flex-row sm:items-center">
     <input
       type="search"
       name="q"
@@ -47,6 +53,24 @@ const buildHref = (
       placeholder="Buscar por nombre…"
       class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 min-w-0 flex-1 rounded-xl border px-4 py-2.5 text-sm transition-colors outline-none"
     />
+    <select
+      name="categoria"
+      class="border-border-subtle bg-background-soft text-text-primary focus:border-primary-500 w-full cursor-pointer rounded-xl border px-4 py-2.5 text-sm outline-none sm:w-auto"
+    >
+      <option value="todas" selected={selectedCategorySlug === 'todas'}>
+        Todas
+      </option>
+      {
+        categories.map((category) => (
+          <option
+            value={category.slug}
+            selected={selectedCategorySlug === category.slug}
+          >
+            {category.name}
+          </option>
+        ))
+      }
+    </select>
     {
       selectedStatus !== 'todos' && (
         <input type="hidden" name="estado" value={selectedStatus} />
@@ -55,7 +79,7 @@ const buildHref = (
     <input type="hidden" name="vista" value={view} />
     <button
       type="submit"
-      class="bg-primary-400 text-primary-950 hover:bg-primary-300 shrink-0 cursor-pointer rounded-xl px-5 py-2.5 text-sm font-bold transition-all hover:shadow-[0_0_20px_rgb(109,209,22,0.25)]"
+      class="bg-primary-400 text-primary-950 hover:bg-primary-300 w-full shrink-0 cursor-pointer rounded-xl px-5 py-2.5 text-sm font-bold transition-all hover:shadow-[0_0_20px_rgb(109,209,22,0.25)] sm:w-auto"
     >
       Buscar
     </button>
@@ -91,7 +115,7 @@ const buildHref = (
       class="bg-background-soft border-border-subtle inline-flex rounded-lg border p-0.5"
     >
       <a
-        href={buildHref(selectedStatus, 'grid')}
+        href={buildHref(selectedStatus, selectedCategorySlug, 'grid')}
         aria-current={view === 'grid' ? 'true' : undefined}
         class:list={[
           'rounded-md p-1.5 transition-all',
@@ -116,7 +140,7 @@ const buildHref = (
         </svg>
       </a>
       <a
-        href={buildHref(selectedStatus, 'list')}
+        href={buildHref(selectedStatus, selectedCategorySlug, 'list')}
         aria-current={view === 'list' ? 'true' : undefined}
         class:list={[
           'rounded-md p-1.5 transition-all',

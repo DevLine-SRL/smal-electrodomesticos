@@ -1,4 +1,5 @@
 import type { ServerSupabaseClient } from '../../db/supabase-server';
+import { getActiveCategories } from './categories';
 import { computePaginationPages, computeTotalPages } from './pagination';
 import type {
   AdminProductListItem,
@@ -21,11 +22,17 @@ export const isStatusFilter = (value: string): value is ProductStatusFilter =>
   (STATUS_FILTERS as string[]).includes(value);
 
 const buildAdminPageHref =
-  (searchTerm: string, status: ProductStatusFilter, view: string) =>
+  (
+    searchTerm: string,
+    status: ProductStatusFilter,
+    categorySlug: string,
+    view: string,
+  ) =>
   (targetPage: number): string => {
     const params = new URLSearchParams();
     if (searchTerm) params.set('q', searchTerm);
     if (status !== 'todos') params.set('estado', status);
+    if (categorySlug !== 'todas') params.set('categoria', categorySlug);
     if (targetPage > 1) params.set('page', String(targetPage));
     if (view) params.set('vista', view);
 
@@ -40,6 +47,7 @@ interface AdminProductRow {
   price: number;
   quantity: number;
   status: ProductStatus;
+  category_id: string;
   categories: { name: string } | { name: string }[] | null;
   product_images: { url: string; position: number }[] | null;
 }
@@ -118,7 +126,21 @@ export const getAdminProducts = async (
     ? requestedStatus
     : 'todos';
 
+  const requestedCategory = requestUrl.searchParams.get('categoria') ?? 'todas';
   const requestedView = requestUrl.searchParams.get('vista') ?? 'grid';
+
+  const categories = await getActiveCategories();
+  const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+
+  const selectedCategorySlug =
+    requestedCategory === 'todas' || categoryBySlug.has(requestedCategory)
+      ? requestedCategory
+      : 'todas';
+
+  const selectedCategoryId =
+    selectedCategorySlug === 'todas'
+      ? null
+      : (categoryBySlug.get(selectedCategorySlug)?.id ?? null);
 
   const requestedPage = Number.parseInt(
     requestUrl.searchParams.get('page') ?? '1',
@@ -135,6 +157,9 @@ export const getAdminProducts = async (
   if (selectedStatus !== 'todos') {
     countQuery = countQuery.eq('status', selectedStatus);
   }
+  if (selectedCategoryId) {
+    countQuery = countQuery.eq('category_id', selectedCategoryId);
+  }
 
   const { count } = await countQuery;
   const totalProducts = count ?? 0;
@@ -147,7 +172,7 @@ export const getAdminProducts = async (
   let listQuery = client
     .from('products')
     .select(
-      'id, name, slug, price, quantity, status, product_images(url, position), categories(name)',
+      'id, name, slug, price, quantity, status, category_id, product_images(url, position), categories(name)',
     )
     .eq('active', true)
     .order('created_at', { ascending: false })
@@ -155,6 +180,9 @@ export const getAdminProducts = async (
   if (searchTerm) listQuery = listQuery.ilike('name', `%${searchTerm}%`);
   if (selectedStatus !== 'todos') {
     listQuery = listQuery.eq('status', selectedStatus);
+  }
+  if (selectedCategoryId) {
+    listQuery = listQuery.eq('category_id', selectedCategoryId);
   }
 
   const { data } = await listQuery;
@@ -168,13 +196,20 @@ export const getAdminProducts = async (
     products: rows.map((row) =>
       mapAdminProductRow(row, lastChanges.get(row.id)),
     ),
+    categories,
     selectedStatus,
+    selectedCategorySlug,
     searchTerm,
     page,
     totalPages,
     totalProducts,
     paginationPages: computePaginationPages(page, totalPages),
-    buildPageHref: buildAdminPageHref(searchTerm, selectedStatus, requestedView),
+    buildPageHref: buildAdminPageHref(
+      searchTerm,
+      selectedStatus,
+      selectedCategorySlug,
+      requestedView,
+    ),
   };
 };
 

@@ -16,6 +16,8 @@ const view = Astro.url.searchParams.get('vista') === 'list' ? 'list' : 'grid';
   <div class="flex flex-col gap-6">
     <StatusFilter
       selectedStatus={catalog.selectedStatus}
+      selectedCategorySlug={catalog.selectedCategorySlug}
+      categories={catalog.categories}
       searchTerm={catalog.searchTerm}
       totalProducts={catalog.totalProducts}
       view={view}
