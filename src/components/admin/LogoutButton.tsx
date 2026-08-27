@@ -23,7 +23,7 @@ export default function LogoutButton() {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 rounded-full border px-4 py-2 text-sm font-semibold transition-colors"
+        className="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold transition-colors"
       >
         Cerrar sesión
       </button>
@@ -43,7 +43,7 @@ export default function LogoutButton() {
         type="button"
         disabled={busy}
         onClick={logout}
-        className="bg-error-500 rounded-full px-3.5 py-2 text-sm font-bold text-white transition-opacity disabled:opacity-60"
+        className="bg-error-500 cursor-pointer rounded-full px-3.5 py-2 text-sm font-bold text-white transition-opacity disabled:opacity-60"
       >
         {busy ? 'Saliendo…' : 'Sí, salir'}
       </button>
@@ -51,7 +51,7 @@ export default function LogoutButton() {
         type="button"
         disabled={busy}
         onClick={() => setConfirming(false)}
-        className="border-border-subtle text-text-secondary hover:text-text-primary rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors"
+        className="border-border-subtle text-text-secondary hover:text-text-primary cursor-pointer rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors"
       >
         Cancelar
       </button>
