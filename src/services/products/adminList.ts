@@ -21,12 +21,13 @@ export const isStatusFilter = (value: string): value is ProductStatusFilter =>
   (STATUS_FILTERS as string[]).includes(value);
 
 const buildAdminPageHref =
-  (searchTerm: string, status: ProductStatusFilter) =>
+  (searchTerm: string, status: ProductStatusFilter, view: string) =>
   (targetPage: number): string => {
     const params = new URLSearchParams();
     if (searchTerm) params.set('q', searchTerm);
     if (status !== 'todos') params.set('estado', status);
     if (targetPage > 1) params.set('page', String(targetPage));
+    if (view) params.set('vista', view);
 
     const query = params.toString();
     return query ? `/admin/products?${query}` : '/admin/products';
@@ -117,6 +118,8 @@ export const getAdminProducts = async (
     ? requestedStatus
     : 'todos';
 
+  const requestedView = requestUrl.searchParams.get('vista') ?? 'grid';
+
   const requestedPage = Number.parseInt(
     requestUrl.searchParams.get('page') ?? '1',
     10,
@@ -171,7 +174,7 @@ export const getAdminProducts = async (
     totalPages,
     totalProducts,
     paginationPages: computePaginationPages(page, totalPages),
-    buildPageHref: buildAdminPageHref(searchTerm, selectedStatus),
+    buildPageHref: buildAdminPageHref(searchTerm, selectedStatus, requestedView),
   };
 };
 

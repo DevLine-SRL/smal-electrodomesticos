@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import StatusBadge, { STATUS_LABELS } from './StatusBadge';
+import { STATUS_LABELS } from './StatusBadge';
 import { showToast } from '../toast';
 import type {
   ProductStatus,
@@ -25,9 +25,27 @@ const CONFIRM_MESSAGES: Record<string, (name: string) => string> = {
     `"${name}" está marcado como vendido. Estás revirtiendo una venta cerrada. ¿Continuar?`,
 };
 
-// Desde cualquier estado se puede ir a los otros dos; el servidor decide cuales
-// exigen confirmacion adicional.
 const ALL_STATUSES: ProductStatus[] = ['available', 'out_of_stock', 'sold'];
+
+const SEGMENT_STYLES: Record<ProductStatus, { active: string; idle: string }> = {
+  available: {
+    active: 'bg-success-500/15 text-success-500 border-success-500/40',
+    idle: 'text-text-muted hover:text-success-500',
+  },
+  out_of_stock: {
+    active: 'bg-warning-400/15 text-warning-400 border-warning-400/40',
+    idle: 'text-text-muted hover:text-warning-400',
+  },
+  sold: {
+    active: 'bg-error-500/15 text-error-500 border-error-500/40',
+    idle: 'text-text-muted hover:text-error-500',
+  },
+};
+
+const SOURCE_LABELS: Record<StatusChangeSource, string> = {
+  automatic: 'auto',
+  manual: 'manual',
+};
 
 export default function ProductStatusControl({
   productId,
@@ -47,7 +65,6 @@ export default function ProductStatusControl({
     const previousSource = source;
 
     setBusy(true);
-    // Actualizacion optimista: se revierte si el servidor rechaza el cambio.
     setStatus(nextStatus);
     setSource('manual');
 
@@ -102,34 +119,62 @@ export default function ProductStatusControl({
     }
   };
 
-  const options = ALL_STATUSES.filter((option) => option !== status);
-
   return (
     <div className="flex flex-col items-start gap-2" aria-busy={busy}>
-      <StatusBadge status={status} source={source} />
+      {/* Segmented control */}
+      <div className="bg-background-soft border-border-subtle inline-flex rounded-lg border p-0.5">
+        {ALL_STATUSES.map((option) => {
+          const isActive = option === status;
+          const styles = SEGMENT_STYLES[option];
 
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((option) => (
-          <button
-            key={option}
-            type="button"
-            disabled={busy}
-            onClick={() => submit(option, false)}
-            className="border-border-subtle text-text-secondary hover:border-primary-400 hover:text-primary-400 rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {STATUS_LABELS[option]}
-          </button>
-        ))}
+          return (
+            <button
+              key={option}
+              type="button"
+              disabled={busy || isActive}
+              onClick={() => submit(option, false)}
+              title={
+                isActive && source
+                  ? `Último cambio: ${SOURCE_LABELS[source]}`
+                  : undefined
+              }
+              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all disabled:cursor-default ${
+                isActive
+                  ? `border ${styles.active}`
+                  : `${styles.idle} border border-transparent`
+              }`}
+            >
+              {STATUS_LABELS[option]}
+            </button>
+          );
+        })}
       </div>
 
+      {/* Source label */}
+      {source && (
+        <span
+          className="text-text-disabled text-[10px] font-medium"
+          title={
+            source === 'automatic'
+              ? 'Cambio automático por el sistema'
+              : 'Cambio manual por un administrador'
+          }
+        >
+          {SOURCE_LABELS[source]}
+        </span>
+      )}
+
+      {/* Confirmation dialog */}
       {pending && (
         <div
           role="alertdialog"
           aria-label="Confirmar cambio de estado"
-          className="border-warning-400/40 bg-warning-400/10 mt-1 rounded-xl border p-3"
+          className="border-warning-400/30 bg-warning-400/8 mt-1 rounded-xl border p-3"
         >
-          <p className="text-text-secondary text-xs">{pending.message}</p>
-          <div className="mt-2 flex gap-2">
+          <p className="text-text-secondary text-xs leading-relaxed">
+            {pending.message}
+          </p>
+          <div className="mt-2.5 flex gap-2">
             <button
               type="button"
               disabled={busy}
@@ -138,15 +183,15 @@ export default function ProductStatusControl({
                 setPending(null);
                 void submit(next, true);
               }}
-              className="bg-primary-400 text-primary-950 hover:bg-primary-300 rounded-full px-3 py-1 text-xs font-bold transition-colors disabled:opacity-50"
+              className="bg-warning-400 hover:bg-warning-400/80 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-colors disabled:opacity-50"
+              style={{ color: '#1a1a1a' }}
             >
               Confirmar
             </button>
             <button
               type="button"
-              // Cancelar no dispara ninguna peticion: el estado ya se revirtio.
               onClick={() => setPending(null)}
-              className="border-border-subtle text-text-secondary hover:text-text-primary rounded-full border px-3 py-1 text-xs font-semibold transition-colors"
+              className="border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-strong rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors"
             >
               Cancelar
             </button>

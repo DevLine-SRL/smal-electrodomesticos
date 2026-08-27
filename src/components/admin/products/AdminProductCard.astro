@@ -1,0 +1,234 @@
+---
+import ProductStatusControl from './ProductStatusControl';
+import type { AdminProductListItem } from '../../../types/products';
+
+interface Props {
+  product: AdminProductListItem;
+  view?: 'grid' | 'list';
+}
+
+const { product, view = 'grid' } = Astro.props;
+
+const formatPrice = (price: number) =>
+  `Bs ${price.toLocaleString('es-BO', { minimumFractionDigits: 2 })}`;
+
+const stockLabel = (q: number) => (q === 1 ? '1 ud' : `${q} uds`);
+
+const stockColor = (q: number) => {
+  if (q === 0) return 'text-error-500';
+  if (q <= 2) return 'text-warning-400';
+  return 'text-text-secondary';
+};
+---
+
+{
+  view === 'grid' ? (
+    <article class="border-border-subtle bg-card shadow-inner-dark group hover:bg-card-hover overflow-hidden rounded-2xl border transition-colors">
+      <div class="bg-background-soft relative aspect-4/3 overflow-hidden">
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div class="text-text-muted grid h-full place-items-center">
+            <span class="font-mono text-xs tracking-[0.14em] uppercase">
+              Sin imagen
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div class="flex flex-col gap-4 p-5">
+        {/* Cluster de información: nombre, precio/stock y estado viven juntos, sin separadores entre ellos */}
+        <div class="flex flex-col gap-2">
+          <div>
+            <p class="text-primary-300 text-xs font-semibold tracking-[0.14em] uppercase">
+              {product.categoryName}
+            </p>
+            <h3 class="text-text-primary mt-1 line-clamp-2 text-base leading-snug font-bold">
+              {product.name}
+            </h3>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <p class="text-primary-400 text-xl font-extrabold">
+              {formatPrice(product.price)}
+            </p>
+            <span
+              class={`text-sm font-semibold ${stockColor(product.quantity)}`}
+            >
+              {product.quantity === 0 ? (
+                <span class="text-error-500">Sin stock</span>
+              ) : (
+                stockLabel(product.quantity)
+              )}
+              {product.quantity > 0 && product.quantity <= 2 && (
+                <span class="text-warning-400 ml-1">!</span>
+              )}
+            </span>
+          </div>
+
+          <ProductStatusControl
+            client:idle
+            productId={product.id}
+            productName={product.name}
+            initialStatus={product.status}
+            initialSource={product.lastStatusSource}
+          />
+        </div>
+
+        {/* Acciones: separadas del cluster de información con su propio corte visual */}
+        <div class="border-border-subtle flex gap-2 border-t pt-3">
+          <button
+            type="button"
+            class="border-border-subtle text-text-secondary hover:border-primary-400 hover:text-primary-400 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors"
+          >
+            <svg
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+              />
+            </svg>
+            Editar
+          </button>
+          <button
+            type="button"
+            class="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors"
+          >
+            <svg
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+              />
+            </svg>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </article>
+  ) : (
+    <article class="border-border-subtle bg-card shadow-inner-dark group hover:bg-card-hover overflow-hidden rounded-2xl border transition-colors">
+      <div class="flex flex-wrap items-center gap-3 p-4">
+        {/* Miniatura */}
+        <div class="bg-background-soft h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+          {product.imageUrl ? (
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              loading="lazy"
+              decoding="async"
+              class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+          ) : (
+            <div class="text-text-muted grid h-full place-items-center">
+              <span class="font-mono text-[9px] uppercase">N/A</span>
+            </div>
+          )}
+        </div>
+
+        {/* Nombre + categoría: siempre en la primera línea */}
+        <div class="min-w-0 flex-1">
+          <p class="text-primary-300 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            {product.categoryName}
+          </p>
+          <h3 class="text-text-primary truncate text-sm font-bold">
+            {product.name}
+          </h3>
+        </div>
+
+        {/*
+          Bloque único que agrupa [precio+stock+estado] y [acciones].
+          basis-full fuerza el salto de línea COMO UNIDAD en mobile (no cada div por separado);
+          en sm+ vuelve a caber en la misma fila que el nombre.
+        */}
+        <div class="border-border-subtle/60 flex w-full flex-wrap items-center justify-between gap-3 border-t pt-2 sm:w-auto sm:flex-1 sm:border-t-0 sm:pt-0">
+          <div class="flex flex-wrap items-center gap-3">
+            <p class="text-primary-400 text-base font-extrabold whitespace-nowrap">
+              {formatPrice(product.price)}
+            </p>
+
+            <span
+              class={`text-xs font-semibold whitespace-nowrap ${stockColor(product.quantity)}`}
+            >
+              {product.quantity === 0 ? (
+                <span class="text-error-500">Sin stock</span>
+              ) : (
+                stockLabel(product.quantity)
+              )}
+              {product.quantity > 0 && product.quantity <= 2 && (
+                <span class="text-warning-400 ml-0.5">!</span>
+              )}
+            </span>
+
+            <ProductStatusControl
+              client:idle
+              productId={product.id}
+              productName={product.name}
+              initialStatus={product.status}
+              initialSource={product.lastStatusSource}
+            />
+          </div>
+
+          <div class="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              class="border-border-subtle text-text-secondary hover:border-primary-400 hover:text-primary-400 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                />
+              </svg>
+              Editar
+            </button>
+            <button
+              type="button"
+              class="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors"
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                />
+              </svg>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}

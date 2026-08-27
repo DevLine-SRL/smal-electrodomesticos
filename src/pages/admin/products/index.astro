@@ -2,13 +2,14 @@
 export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
-import AdminProductsTable from '../../../components/admin/products/AdminProductsTable.astro';
+import AdminProductCard from '../../../components/admin/products/AdminProductCard.astro';
 import StatusFilter from '../../../components/admin/products/StatusFilter.astro';
 import ToastHost from '../../../components/admin/ToastHost';
 import Pagination from '../../../components/products/Pagination.astro';
 import { getAdminProducts } from '../../../services/products/adminList';
 
 const catalog = await getAdminProducts(Astro.locals.supabase, Astro.url);
+const view = Astro.url.searchParams.get('vista') === 'list' ? 'list' : 'grid';
 ---
 
 <AdminLayout title="Productos" active="/admin/products">
@@ -17,9 +18,31 @@ const catalog = await getAdminProducts(Astro.locals.supabase, Astro.url);
       selectedStatus={catalog.selectedStatus}
       searchTerm={catalog.searchTerm}
       totalProducts={catalog.totalProducts}
+      view={view}
+      currentPage={catalog.page}
     />
 
-    <AdminProductsTable products={catalog.products} />
+    {
+      catalog.products.length === 0 ? (
+        <p class="border-border-subtle text-text-muted rounded-2xl border border-dashed px-6 py-12 text-center text-sm">
+          No hay productos que coincidan con el filtro.
+        </p>
+      ) : (
+        <div
+          data-products-container
+          class:list={[
+            'gap-5',
+            view === 'grid'
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              : 'flex flex-col gap-3',
+          ]}
+        >
+          {catalog.products.map((product) => (
+            <AdminProductCard product={product} view={view} />
+          ))}
+        </div>
+      )
+    }
 
     <Pagination
       page={catalog.page}

@@ -5,9 +5,17 @@ interface Props {
   selectedStatus: ProductStatusFilter;
   searchTerm: string;
   totalProducts: number;
+  view?: 'grid' | 'list';
+  currentPage?: number;
 }
 
-const { selectedStatus, searchTerm, totalProducts } = Astro.props;
+const {
+  selectedStatus,
+  searchTerm,
+  totalProducts,
+  view = 'grid',
+  currentPage = 1,
+} = Astro.props;
 
 const OPTIONS: { value: ProductStatusFilter; label: string }[] = [
   { value: 'todos', label: 'Todos' },
@@ -16,17 +24,22 @@ const OPTIONS: { value: ProductStatusFilter; label: string }[] = [
   { value: 'sold', label: 'Vendidos' },
 ];
 
-const buildHref = (status: ProductStatusFilter) => {
+const buildHref = (
+  status: ProductStatusFilter,
+  targetView: 'grid' | 'list' = view,
+) => {
   const params = new URLSearchParams();
   if (searchTerm) params.set('q', searchTerm);
   if (status !== 'todos') params.set('estado', status);
+  if (currentPage > 1) params.set('page', String(currentPage));
+  params.set('vista', targetView);
   const query = params.toString();
   return query ? `/admin/products?${query}` : '/admin/products';
 };
 ---
 
 <div class="flex flex-col gap-4">
-  <form method="GET" action="/admin/products" class="flex flex-wrap gap-2">
+  <form method="GET" action="/admin/products" class="flex gap-2">
     <input
       type="search"
       name="q"
@@ -39,9 +52,10 @@ const buildHref = (status: ProductStatusFilter) => {
         <input type="hidden" name="estado" value={selectedStatus} />
       )
     }
+    <input type="hidden" name="vista" value={view} />
     <button
       type="submit"
-      class="bg-primary-400 text-primary-950 hover:bg-primary-300 rounded-full px-5 py-2.5 text-sm font-bold transition-colors"
+      class="bg-primary-400 text-primary-950 hover:bg-primary-300 shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold transition-all hover:shadow-[0_0_20px_rgb(109,209,22,0.25)]"
     >
       Buscar
     </button>
@@ -54,10 +68,10 @@ const buildHref = (status: ProductStatusFilter) => {
           href={buildHref(option.value)}
           aria-current={option.value === selectedStatus ? 'true' : undefined}
           class:list={[
-            'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+            'rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-all',
             option.value === selectedStatus
-              ? 'bg-primary-400 text-primary-950'
-              : 'border-border-subtle text-text-secondary hover:text-text-primary hover:border-primary-500 border',
+              ? 'border-primary-400/40 bg-primary-400/15 text-primary-400 border'
+              : 'border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-strong border',
           ]}
         >
           {option.label}
@@ -68,5 +82,64 @@ const buildHref = (status: ProductStatusFilter) => {
     <span class="text-text-muted ml-auto text-sm">
       {totalProducts} producto{totalProducts === 1 ? '' : 's'}
     </span>
+
+    {
+      /* View toggle: navegación real vía href para que el server re-renderice
+        AdminProductCard con el `view` correcto (prerender = false en la página padre) */
+    }
+    <div
+      class="bg-background-soft border-border-subtle inline-flex rounded-lg border p-0.5"
+    >
+      <a
+        href={buildHref(selectedStatus, 'grid')}
+        aria-current={view === 'grid' ? 'true' : undefined}
+        class:list={[
+          'rounded-md p-1.5 transition-all',
+          view === 'grid'
+            ? 'bg-primary-400/15 text-primary-400'
+            : 'text-text-muted hover:text-text-secondary',
+        ]}
+        title="Vista en cuadrícula"
+      >
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
+          ></path>
+        </svg>
+      </a>
+      <a
+        href={buildHref(selectedStatus, 'list')}
+        aria-current={view === 'list' ? 'true' : undefined}
+        class:list={[
+          'rounded-md p-1.5 transition-all',
+          view === 'list'
+            ? 'bg-primary-400/15 text-primary-400'
+            : 'text-text-muted hover:text-text-secondary',
+        ]}
+        title="Vista en lista"
+      >
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"
+          ></path>
+        </svg>
+      </a>
+    </div>
   </div>
 </div>
