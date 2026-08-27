@@ -6,7 +6,6 @@ import AdminHeader from '../components/admin/AdminHeader.astro';
 interface Props {
   title: string;
   description?: string;
-  /** Ruta a resaltar en el menu lateral. */
   active?: string;
 }
 
@@ -15,14 +14,63 @@ const { title, description, active = '/admin' } = Astro.props;
 
 <Base title={title} description={description}>
   <div class="bg-background flex min-h-screen">
-    <Sidebar active={active} />
+    <div
+      id="admin-backdrop"
+      class="pointer-events-none fixed inset-0 z-40 bg-black/60 opacity-0 backdrop-blur-sm transition-opacity duration-300"
+      aria-hidden="true"
+    >
+    </div>
+
+    <aside
+      id="admin-sidebar"
+      class="bg-background-soft border-border-subtle pointer-events-none fixed inset-y-0 left-0 z-50 w-64 -translate-x-full border-r transition-transform duration-300 max-lg:data-open:pointer-events-auto max-lg:data-open:translate-x-0 lg:pointer-events-auto lg:static lg:translate-x-0"
+    >
+      <Sidebar active={active} />
+    </aside>
 
     <div class="flex min-w-0 flex-1 flex-col">
       <AdminHeader title={title} />
 
-      <main class="flex-1 overflow-y-auto p-6">
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6">
         <slot />
       </main>
     </div>
   </div>
+
+  <script>
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('admin-backdrop');
+
+    function openDrawer() {
+      sidebar?.setAttribute('data-open', '');
+      backdrop?.classList.remove('pointer-events-none');
+      backdrop?.classList.add('pointer-events-auto');
+      backdrop?.classList.remove('opacity-0');
+      backdrop?.classList.add('opacity-100');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      sidebar?.removeAttribute('data-open');
+      backdrop?.classList.add('pointer-events-none');
+      backdrop?.classList.remove('pointer-events-auto');
+      backdrop?.classList.add('opacity-0');
+      backdrop?.classList.remove('opacity-100');
+      document.body.style.overflow = '';
+    }
+
+    document
+      .getElementById('drawer-open')
+      ?.addEventListener('click', openDrawer);
+    document
+      .getElementById('drawer-close')
+      ?.addEventListener('click', closeDrawer);
+    backdrop?.addEventListener('click', closeDrawer);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebar?.hasAttribute('data-open')) {
+        closeDrawer();
+      }
+    });
+  </script>
 </Base>

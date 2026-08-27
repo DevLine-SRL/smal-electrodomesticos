@@ -1,5 +1,6 @@
 ---
 import LogoutButton from './LogoutButton';
+import MenuIcon from 'virtual:icons/lucide/menu?astro';
 
 interface Props {
   title: string;
@@ -10,9 +11,22 @@ const profile = Astro.locals.profile;
 ---
 
 <header
-  class="border-border-subtle bg-background-soft flex h-16 items-center justify-between gap-4 border-b px-6"
+  class="bg-background/85 border-border-subtle sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b px-5 backdrop-blur-md sm:px-8"
 >
-  <h1 class="text-text-primary text-lg font-semibold">{title}</h1>
+  <div class="flex items-center gap-3">
+    <button
+      id="drawer-open"
+      class="border-border-subtle text-text-secondary grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full border transition-colors hover:text-white lg:hidden"
+      aria-label="Abrir menú"
+    >
+      <MenuIcon class="h-5 w-5" />
+    </button>
+    <h1
+      class="font-display text-text-primary text-lg font-extrabold tracking-tight"
+    >
+      {title}
+    </h1>
+  </div>
 
   <div class="flex items-center gap-4">
     {

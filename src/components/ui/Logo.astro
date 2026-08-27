@@ -3,13 +3,14 @@ import LightningBolt from 'virtual:icons/lucide/zap?astro';
 
 interface Props {
   tagline?: boolean;
+  href?: string;
 }
 
-const { tagline } = Astro.props;
+const { tagline, href = '/' } = Astro.props;
 ---
 
 <a
-  href="/"
+  href={href}
   class="group inline-flex items-center gap-2.5"
   aria-label="SMAL — Todo para tu hogar"
 >
