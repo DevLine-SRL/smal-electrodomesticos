@@ -1,5 +1,6 @@
 ---
 import type { Category, ProductStatusFilter } from '../../../types/products';
+import PlusIcon from 'virtual:icons/lucide/plus?astro';
 
 interface Props {
   selectedStatus: ProductStatusFilter;
@@ -83,6 +84,13 @@ const buildHref = (
     >
       Buscar
     </button>
+    <a
+      href="/admin/products/new"
+      class="border-border-strong bg-background-elevated text-text-primary hover:border-primary-400/60 hover:text-primary-400 flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-bold transition-colors sm:w-auto"
+    >
+      <PlusIcon class="h-4 w-4" aria-hidden="true" />
+      Agregar producto
+    </a>
   </form>
 
   <div class="flex flex-wrap items-center gap-2">

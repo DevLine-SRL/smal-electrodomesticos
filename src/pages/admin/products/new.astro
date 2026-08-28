@@ -1,0 +1,13 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import NewProductForm from '../../../components/admin/products/NewProductForm.astro';
+import { getActiveCategories } from '../../../services/products/categories';
+
+const categories = await getActiveCategories();
+---
+
+<AdminLayout title="Nuevo producto" active="/admin/products">
+  <NewProductForm categories={categories} />
+</AdminLayout>

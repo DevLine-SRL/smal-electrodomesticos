@@ -10,10 +10,28 @@ import { getAdminProducts } from '../../../services/products/adminList';
 
 const catalog = await getAdminProducts(Astro.locals.supabase, Astro.url);
 const view = Astro.url.searchParams.get('vista') === 'list' ? 'list' : 'grid';
+const created = Astro.url.searchParams.get('created') === '1';
+const duplicateWarning = Astro.url.searchParams.get('duplicate') === '1';
 ---
 
 <AdminLayout title="Productos" active="/admin/products">
   <div class="flex flex-col gap-6">
+    {
+      created && (
+        <p
+          class:list={[
+            'rounded-xl border px-4 py-3 text-sm font-semibold',
+            duplicateWarning
+              ? 'border-warning-400/40 bg-warning-400/10 text-warning-400'
+              : 'border-success-500/40 bg-success-500/12 text-success-500',
+          ]}
+        >
+          {duplicateWarning
+            ? 'Producto guardado. Ya existe otro producto con el mismo nombre; revisa que sean modelos distintos.'
+            : 'Producto guardado correctamente.'}
+        </p>
+      )
+    }
     <StatusFilter
       selectedStatus={catalog.selectedStatus}
       selectedCategorySlug={catalog.selectedCategorySlug}

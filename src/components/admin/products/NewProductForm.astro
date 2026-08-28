@@ -1,0 +1,209 @@
+---
+import type { Category } from '../../../types/products';
+
+interface Props {
+  categories: Category[];
+}
+
+const { categories } = Astro.props;
+---
+
+<form id="new-product-form" enctype="multipart/form-data" novalidate class="mx-auto max-w-4xl space-y-6">
+  <section class="border-border-subtle bg-background-soft rounded-2xl border p-5 sm:p-7">
+    <div class="mb-6">
+      <p class="text-primary-400 text-xs font-bold tracking-[0.16em] uppercase">Catálogo</p>
+      <h2 class="font-display text-text-primary mt-1 text-2xl font-extrabold">Información del producto</h2>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="block sm:col-span-2">
+        <span class="text-text-primary mb-2 block text-sm font-bold">Nombre <span class="text-error-500">*</span></span>
+        <input name="name" required maxlength="160" autocomplete="off" class="field" placeholder="Ej. Licuadora Oster 2 velocidades" />
+        <span data-error="name" class="field-error"></span>
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-text-primary mb-2 block text-sm font-bold">Descripción</span>
+        <textarea name="description" rows="4" maxlength="2000" class="field resize-y" placeholder="Características, estado y detalles relevantes"></textarea>
+        <span data-error="description" class="field-error"></span>
+      </label>
+      <label class="block">
+        <span class="text-text-primary mb-2 block text-sm font-bold">Precio <span class="text-error-500">*</span></span>
+        <input name="price" type="number" required min="0.01" step="0.01" inputmode="decimal" class="field" placeholder="0.00" />
+        <span data-error="price" class="field-error"></span>
+      </label>
+      <label class="block">
+        <span class="text-text-primary mb-2 block text-sm font-bold">Cantidad inicial <span class="text-error-500">*</span></span>
+        <input name="quantity" type="number" required min="0" step="1" inputmode="numeric" class="field" placeholder="0" />
+        <span data-error="quantity" class="field-error"></span>
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-text-primary mb-2 block text-sm font-bold">Categoría <span class="text-error-500">*</span></span>
+        <select name="categoryId" required class="field cursor-pointer">
+          <option value="">Selecciona una categoría</option>
+          {categories.map((category) => <option value={category.id}>{category.name}</option>)}
+        </select>
+        <span data-error="categoryId" class="field-error"></span>
+      </label>
+    </div>
+  </section>
+
+  <section class="border-border-subtle bg-background-soft rounded-2xl border p-5 sm:p-7">
+    <div class="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-primary-400 text-xs font-bold tracking-[0.16em] uppercase">Galería</p>
+        <h2 class="font-display text-text-primary mt-1 text-2xl font-extrabold">Fotografías <span class="text-error-500">*</span></h2>
+      </div>
+      <p class="text-text-muted text-xs">JPG, PNG, WEBP o GIF · máximo 5 MB por imagen</p>
+    </div>
+    <label
+      class="border-border-strong bg-background hover:border-primary-400/70 focus-within:border-primary-400 focus-within:ring-primary-400/25 group flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-5 text-center transition-colors focus-within:ring-4 sm:min-h-44 sm:px-8 sm:py-6"
+    >
+      <input
+        id="product-photos"
+        name="photos"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        multiple
+        required
+        aria-describedby="photo-upload-help"
+        class="sr-only"
+      />
+      <span class="bg-primary-400/12 text-primary-400 group-hover:bg-primary-400/18 mb-3 flex h-11 w-11 items-center justify-center rounded-full transition-colors sm:mb-4 sm:h-12 sm:w-12">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v3.25A1.75 1.75 0 006.75 19h10.5A1.75 1.75 0 0019 17.25V14" />
+        </svg>
+      </span>
+      <span class="text-text-primary text-sm font-bold sm:text-base">Seleccionar fotografías</span>
+      <span id="photo-upload-help" class="text-text-muted mt-1 max-w-sm text-xs leading-5 sm:text-sm">Toca aquí para elegir una o varias imágenes.</span>
+      <span class="text-primary-400 mt-3 text-xs font-bold sm:hidden">JPG, PNG, WEBP o GIF · máx. 5 MB</span>
+    </label>
+    <span data-error="photos" class="field-error"></span>
+    <div id="photo-previews" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
+  </section>
+
+  <div id="form-message" role="alert" aria-live="polite" class="hidden rounded-xl border px-4 py-3 text-sm font-semibold"></div>
+  <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <a href="/admin/products" class="border-border-strong text-text-secondary hover:text-text-primary rounded-xl border px-5 py-2.5 text-center text-sm font-bold transition-colors">Cancelar</a>
+    <button id="save-product" type="submit" class="bg-primary-400 text-primary-950 hover:bg-primary-300 cursor-pointer rounded-xl px-5 py-2.5 text-sm font-extrabold transition-colors disabled:cursor-wait disabled:opacity-70">Guardar producto</button>
+  </div>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#new-product-form');
+  const photoInput = document.querySelector<HTMLInputElement>('#product-photos');
+  const previews = document.querySelector<HTMLDivElement>('#photo-previews');
+  const message = document.querySelector<HTMLDivElement>('#form-message');
+  const submitButton = document.querySelector<HTMLButtonElement>('#save-product');
+  const maxFileSize = 5 * 1024 * 1024;
+  const imageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+  const setError = (name: string, value = '') => {
+    const element = document.querySelector<HTMLElement>(`[data-error="${name}"]`);
+    if (element) element.textContent = value;
+  };
+
+  const showMessage = (text: string, tone: 'error' | 'success') => {
+    if (!message) return;
+    message.textContent = text;
+    message.className = `rounded-xl border px-4 py-3 text-sm font-semibold ${tone === 'error' ? 'border-error-500/40 bg-error-500/12 text-error-500' : 'border-success-500/40 bg-success-500/12 text-success-500'}`;
+  };
+
+  const validateFiles = (files: File[]) => {
+    if (!files.length) return 'Agrega al menos una fotografía del producto.';
+    if (files.some((file) => !imageTypes.has(file.type))) return 'Solo se aceptan imágenes JPG, PNG, WEBP o GIF.';
+    if (files.some((file) => file.size > maxFileSize)) return 'Cada imagen debe pesar como máximo 5 MB.';
+    return '';
+  };
+
+  const renderPreviews = (files: File[]) => {
+    if (!previews) return;
+    previews.replaceChildren();
+    for (const file of files) {
+      const card = document.createElement('figure');
+      card.className = 'bg-background overflow-hidden rounded-xl border border-border-subtle';
+      const image = document.createElement('img');
+      image.src = URL.createObjectURL(file);
+      image.alt = `Vista previa: ${file.name}`;
+      image.className = 'h-28 w-full object-cover';
+      image.onload = () => URL.revokeObjectURL(image.src);
+      const caption = document.createElement('figcaption');
+      caption.className = 'text-text-muted truncate px-2 py-1.5 text-xs';
+      caption.textContent = file.name;
+      card.append(image, caption);
+      previews.append(card);
+    }
+  };
+
+  photoInput?.addEventListener('change', () => {
+    const files = Array.from(photoInput.files ?? []);
+    setError('photos', validateFiles(files));
+    renderPreviews(files);
+  });
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form || !submitButton) return;
+    ['name', 'price', 'quantity', 'categoryId', 'photos'].forEach((field) => setError(field));
+    if (message) message.className = 'hidden';
+
+    const values = new FormData(form);
+    const name = String(values.get('name') ?? '').trim();
+    const price = Number(values.get('price'));
+    const quantityText = String(values.get('quantity') ?? '');
+    const quantity = Number(quantityText);
+    const categoryId = String(values.get('categoryId') ?? '');
+    const files = Array.from(photoInput?.files ?? []);
+    let valid = true;
+    if (!name) { setError('name', 'El nombre es obligatorio.'); valid = false; }
+    if (!Number.isFinite(price) || price <= 0) { setError('price', 'Ingresa un precio mayor a cero.'); valid = false; }
+    if (!quantityText || !Number.isInteger(quantity) || quantity < 0) { setError('quantity', 'Ingresa una cantidad entera igual o mayor a cero.'); valid = false; }
+    if (!categoryId) { setError('categoryId', 'Selecciona una categoría.'); valid = false; }
+    const photoError = validateFiles(files);
+    if (photoError) { setError('photos', photoError); valid = false; }
+    if (!valid) return;
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Guardando…';
+    try {
+      const response = await fetch('/api/admin/products', { method: 'POST', body: values });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (result.errors) Object.entries(result.errors).forEach(([field, error]) => setError(field, String(error)));
+        showMessage(result.message ?? 'No pudimos guardar el producto. Revisa los campos e inténtalo nuevamente.', 'error');
+        return;
+      }
+      window.location.assign(
+        `/admin/products?created=1${result.warning ? '&duplicate=1' : ''}`,
+      );
+    } catch {
+      showMessage('No se pudo conectar al servidor. Tus datos siguen aquí para que puedas reintentar.', 'error');
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Guardar producto';
+    }
+  });
+</script>
+
+<style>
+  .field {
+    width: 100%;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 0.75rem;
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    outline: none;
+  }
+
+  .field::placeholder { color: var(--color-text-disabled); }
+  .field:focus { border-color: var(--color-primary-500); }
+  .field-error {
+    display: block;
+    min-height: 1.25rem;
+    margin-top: 0.375rem;
+    color: var(--color-error-500);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+</style>
