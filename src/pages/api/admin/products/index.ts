@@ -65,7 +65,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const errors: FieldErrors = {};
   if (!name) errors.name = 'El nombre es obligatorio.';
-  if (name.length > 160) errors.name = 'El nombre no puede superar 160 caracteres.';
+  if (name.length > 160)
+    errors.name = 'El nombre no puede superar 160 caracteres.';
   if (!priceText || !Number.isFinite(price) || price <= 0) {
     errors.price = 'Ingresa un precio mayor a cero.';
   }
@@ -98,7 +99,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .maybeSingle();
   if (!category) {
     return json(
-      { errors: { categoryId: 'La categoría seleccionada no está disponible.' } },
+      {
+        errors: { categoryId: 'La categoría seleccionada no está disponible.' },
+      },
       422,
     );
   }
@@ -129,21 +132,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
       uploadedImages.push({ url: publicUrl.publicUrl, position });
     }
 
-    const { error: productError } = await locals.supabase.from('products').insert({
-      id: productId,
-      name,
-      slug: toSlug(name),
-      description: description || null,
-      price,
-      quantity,
-      category_id: category.id,
-      created_by: locals.user?.id ?? null,
-    });
+    const { error: productError } = await locals.supabase
+      .from('products')
+      .insert({
+        id: productId,
+        name,
+        slug: toSlug(name),
+        description: description || null,
+        price,
+        quantity,
+        category_id: category.id,
+        created_by: locals.user?.id ?? null,
+      });
     if (productError) throw productError;
 
     const { error: imagesError } = await locals.supabase
       .from('product_images')
-      .insert(uploadedImages.map((image) => ({ ...image, product_id: productId })));
+      .insert(
+        uploadedImages.map((image) => ({ ...image, product_id: productId })),
+      );
     if (imagesError) {
       await locals.supabase.from('products').delete().eq('id', productId);
       throw imagesError;
@@ -160,7 +167,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   } catch {
     if (uploadedPaths.length) {
-      await locals.supabase.storage.from('product-images').remove(uploadedPaths);
+      await locals.supabase.storage
+        .from('product-images')
+        .remove(uploadedPaths);
     }
     return json(
       {

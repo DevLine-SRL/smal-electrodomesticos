@@ -1,19 +1,23 @@
 ---
-import type { Category } from '../../../types/products';
+import type { Category, ProductDetail } from '../../../types/products';
 
 interface Props {
+  product: ProductDetail;
   categories: Category[];
 }
 
-const { categories } = Astro.props;
+const { product, categories } = Astro.props;
+const MAX_IMAGES = 4;
 ---
 
 <form
-  id="new-product-form"
+  id="edit-product-form"
   enctype="multipart/form-data"
   novalidate
   class="mx-auto max-w-4xl space-y-6"
 >
+  <input type="hidden" name="productId" value={product.id} />
+
   <section
     class="border-border-subtle bg-background-soft rounded-2xl border p-5 sm:p-7"
   >
@@ -38,6 +42,7 @@ const { categories } = Astro.props;
           autocomplete="off"
           class="field"
           placeholder="Ej. Licuadora Oster 2 velocidades"
+          value={product.name}
         />
         <span data-error="name" class="field-error"></span>
       </label>
@@ -51,7 +56,8 @@ const { categories } = Astro.props;
           maxlength="2000"
           class="field resize-y"
           placeholder="Características, estado y detalles relevantes"
-        ></textarea>
+          >{product.description ?? ''}</textarea
+        >
         <span data-error="description" class="field-error"></span>
       </label>
       <label class="block">
@@ -67,12 +73,13 @@ const { categories } = Astro.props;
           inputmode="decimal"
           class="field"
           placeholder="0.00"
+          value={product.price}
         />
         <span data-error="price" class="field-error"></span>
       </label>
       <label class="block">
         <span class="text-text-primary mb-2 block text-sm font-bold"
-          >Cantidad inicial <span class="text-error-500">*</span></span
+          >Cantidad <span class="text-error-500">*</span></span
         >
         <input
           name="quantity"
@@ -83,6 +90,7 @@ const { categories } = Astro.props;
           inputmode="numeric"
           class="field"
           placeholder="0"
+          value={product.quantity}
         />
         <span data-error="quantity" class="field-error"></span>
       </label>
@@ -94,7 +102,12 @@ const { categories } = Astro.props;
           <option value="">Selecciona una categoría</option>
           {
             categories.map((category) => (
-              <option value={category.id}>{category.name}</option>
+              <option
+                value={category.id}
+                selected={category.id === product.categoryId}
+              >
+                {category.name}
+              </option>
             ))
           }
         </select>
@@ -116,14 +129,63 @@ const { categories } = Astro.props;
           Galería
         </p>
         <h2 class="font-display text-text-primary mt-1 text-2xl font-extrabold">
-          Fotografías <span class="text-error-500">*</span>
+          Fotografías
         </h2>
       </div>
-      <p class="text-text-muted text-xs">
-        JPG, PNG, WEBP o GIF · máximo 5 MB por imagen
+      <p class="text-text-muted text-xs" id="image-count-label">
+        {product.images.length} de {MAX_IMAGES} imágenes · JPG, PNG, WEBP o GIF ·
+        máx. 5 MB
       </p>
     </div>
+
+    {/* Imágenes existentes */}
+    <div
+      id="existing-images"
+      class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4"
+    >
+      {
+        product.images.map((image) => (
+          <figure
+            class="bg-background border-border-subtle group relative overflow-hidden rounded-xl border transition-all"
+            data-image-id={image.id}
+            data-image-exists="true"
+          >
+            <img
+              src={image.url}
+              alt={`Imagen ${image.position + 1}`}
+              class="h-28 w-full object-cover"
+            />
+            <button
+              type="button"
+              class="delete-image bg-error-500/80 hover:bg-error-500 absolute top-1.5 right-1.5 z-10 cursor-pointer rounded-full p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              aria-label="Eliminar imagen"
+              data-image-id={image.id}
+            >
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <figcaption class="text-text-muted truncate px-2 py-1.5 text-xs">
+              Imagen {image.position + 1}
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+
+    {/* Upload de nuevas imágenes */}
     <label
+      id="upload-label"
       class="border-border-strong bg-background hover:border-primary-400/70 focus-within:border-primary-400 focus-within:ring-primary-400/25 group flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-5 text-center transition-colors focus-within:ring-4 sm:min-h-44 sm:px-8 sm:py-6"
     >
       <input
@@ -132,7 +194,6 @@ const { categories } = Astro.props;
         type="file"
         accept="image/jpeg,image/png,image/webp,image/gif"
         multiple
-        required
         aria-describedby="photo-upload-help"
         class="sr-only"
       />
@@ -155,7 +216,7 @@ const { categories } = Astro.props;
         </svg>
       </span>
       <span class="text-text-primary text-sm font-bold sm:text-base"
-        >Seleccionar fotografías</span
+        >Agregar más fotografías</span
       >
       <span
         id="photo-upload-help"
@@ -182,25 +243,27 @@ const { categories } = Astro.props;
     <a
       href="/admin/products"
       class="border-border-strong text-text-secondary hover:text-text-primary rounded-xl border px-5 py-2.5 text-center text-sm font-bold transition-colors"
-      >Cancelar</a
     >
+      Cancelar
+    </a>
     <button
       id="save-product"
       type="submit"
       class="bg-primary-400 text-primary-950 hover:bg-primary-300 cursor-pointer rounded-xl px-5 py-2.5 text-sm font-extrabold transition-colors disabled:cursor-wait disabled:opacity-70"
-      >Guardar producto</button
     >
+      Guardar cambios
+    </button>
   </div>
 </form>
 
-<script>
-  const form = document.querySelector<HTMLFormElement>('#new-product-form');
-  const photoInput =
-    document.querySelector<HTMLInputElement>('#product-photos');
-  const previews = document.querySelector<HTMLDivElement>('#photo-previews');
-  const message = document.querySelector<HTMLDivElement>('#form-message');
-  const submitButton =
-    document.querySelector<HTMLButtonElement>('#save-product');
+<script define:vars={{ MAX_IMAGES }}>
+  const form = document.querySelector('#edit-product-form');
+  const photoInput = document.querySelector('#product-photos');
+  const previews = document.querySelector('#photo-previews');
+  const message = document.querySelector('#form-message');
+  const submitButton = document.querySelector('#save-product');
+  const imageCountLabel = document.querySelector('#image-count-label');
+  const uploadLabel = document.querySelector('#upload-label');
   const maxFileSize = 5 * 1024 * 1024;
   const imageTypes = new Set([
     'image/jpeg',
@@ -209,29 +272,54 @@ const { categories } = Astro.props;
     'image/gif',
   ]);
 
-  const setError = (name: string, value = '') => {
-    const element = document.querySelector<HTMLElement>(
-      `[data-error="${name}"]`,
-    );
+  // Contar imágenes iniciales
+  let existingCount = document.querySelectorAll('[data-image-exists]').length;
+  const deletedImageIds = new Set();
+  let hasUnsavedChanges = false;
+
+  const updateImageCountLabel = () => {
+    if (!imageCountLabel) return;
+    const remaining = existingCount - deletedImageIds.size;
+    imageCountLabel.textContent = `${remaining} de ${MAX_IMAGES} imágenes · JPG, PNG, WEBP o GIF · máx. 5 MB`;
+  };
+
+  const updateUploadDisabled = () => {
+    if (!uploadLabel || !photoInput) return;
+    const remaining = existingCount - deletedImageIds.size;
+    const available = MAX_IMAGES - remaining;
+    if (available <= 0) {
+      uploadLabel.classList.add('opacity-40', 'pointer-events-none');
+      photoInput.disabled = true;
+    } else {
+      uploadLabel.classList.remove('opacity-40', 'pointer-events-none');
+      photoInput.disabled = false;
+    }
+  };
+
+  const setError = (name, value = '') => {
+    const element = document.querySelector(`[data-error="${name}"]`);
     if (element) element.textContent = value;
   };
 
-  const showMessage = (text: string, tone: 'error' | 'success') => {
+  const showMessage = (text, tone) => {
     if (!message) return;
     message.textContent = text;
     message.className = `rounded-xl border px-4 py-3 text-sm font-semibold ${tone === 'error' ? 'border-error-500/40 bg-error-500/12 text-error-500' : 'border-success-500/40 bg-success-500/12 text-success-500'}`;
   };
 
-  const validateFiles = (files: File[]) => {
-    if (!files.length) return 'Agrega al menos una fotografía del producto.';
+  const validateFiles = (files) => {
     if (files.some((file) => !imageTypes.has(file.type)))
       return 'Solo se aceptan imágenes JPG, PNG, WEBP o GIF.';
     if (files.some((file) => file.size > maxFileSize))
       return 'Cada imagen debe pesar como máximo 5 MB.';
+    const remaining = existingCount - deletedImageIds.size;
+    const available = MAX_IMAGES - remaining;
+    if (files.length > available)
+      return `Solo puedes agregar ${available} imagen${available === 1 ? '' : 'es'} más (máximo ${MAX_IMAGES} en total).`;
     return '';
   };
 
-  const renderPreviews = (files: File[]) => {
+  const renderPreviews = (files) => {
     if (!previews) return;
     previews.replaceChildren();
     for (const file of files) {
@@ -251,11 +339,57 @@ const { categories } = Astro.props;
     }
   };
 
+  // Eliminar imágenes existentes
+  document.querySelectorAll('.delete-image').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const imageId = btn.dataset.imageId;
+      if (!imageId) return;
+
+      const figure = btn.closest('figure');
+      if (!figure) return;
+
+      if (deletedImageIds.has(imageId)) {
+        // Deseleccionar: restaurar imagen
+        deletedImageIds.delete(imageId);
+        figure.style.opacity = '';
+        figure.style.pointerEvents = '';
+        figure.style.textDecoration = '';
+        btn.setAttribute('aria-label', 'Eliminar imagen');
+      } else {
+        // Marcar para eliminar
+        deletedImageIds.add(imageId);
+        figure.style.opacity = '0.4';
+        figure.style.pointerEvents = 'none';
+        figure.style.textDecoration = 'line-through';
+        btn.setAttribute('aria-label', 'Restaurar imagen');
+      }
+
+      hasUnsavedChanges = true;
+      updateImageCountLabel();
+      updateUploadDisabled();
+    });
+  });
+
   photoInput?.addEventListener('change', () => {
     const files = Array.from(photoInput.files ?? []);
     setError('photos', validateFiles(files));
     renderPreviews(files);
+    hasUnsavedChanges = true;
   });
+
+  form?.addEventListener('input', () => {
+    hasUnsavedChanges = true;
+  });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  // Estado inicial
+  updateUploadDisabled();
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -266,12 +400,14 @@ const { categories } = Astro.props;
     if (message) message.className = 'hidden';
 
     const values = new FormData(form);
+    const productId = String(values.get('productId') ?? '');
     const name = String(values.get('name') ?? '').trim();
     const price = Number(values.get('price'));
     const quantityText = String(values.get('quantity') ?? '');
     const quantity = Number(quantityText);
     const categoryId = String(values.get('categoryId') ?? '');
     const files = Array.from(photoInput?.files ?? []);
+
     let valid = true;
     if (!name) {
       setError('name', 'El nombre es obligatorio.');
@@ -298,27 +434,83 @@ const { categories } = Astro.props;
 
     submitButton.disabled = true;
     submitButton.textContent = 'Guardando…';
+
     try {
-      const response = await fetch('/api/admin/products', {
-        method: 'POST',
-        body: values,
+      // 1. Actualizar datos del producto
+      const productData = new FormData();
+      productData.set('name', name);
+      productData.set('description', String(values.get('description') ?? ''));
+      productData.set('price', String(price));
+      productData.set('quantity', String(quantity));
+      productData.set('categoryId', categoryId);
+
+      const productResponse = await fetch(`/api/admin/products/${productId}`, {
+        method: 'PATCH',
+        body: productData,
       });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        if (result.errors)
-          Object.entries(result.errors).forEach(([field, error]) =>
+
+      const productResult = await productResponse.json().catch(() => ({}));
+      if (!productResponse.ok) {
+        if (productResult.errors)
+          Object.entries(productResult.errors).forEach(([field, error]) =>
             setError(field, String(error)),
           );
         showMessage(
-          result.message ??
-            'No pudimos guardar el producto. Revisa los campos e inténtalo nuevamente.',
+          productResult.message ??
+            'No pudimos guardar los cambios. Revisa los campos e inténtalo nuevamente.',
           'error',
         );
         return;
       }
-      window.location.assign(
-        `/admin/products?created=1${result.warning ? '&duplicate=1' : ''}`,
-      );
+
+      // 2. Eliminar imágenes marcadas PRIMERO (antes de subir nuevas)
+      if (deletedImageIds.size > 0) {
+        const deleteResponse = await fetch(
+          `/api/admin/products/${productId}/images`,
+          {
+            method: 'DELETE',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ imageIds: Array.from(deletedImageIds) }),
+          },
+        );
+
+        if (!deleteResponse.ok) {
+          const deleteResult = await deleteResponse.json().catch(() => ({}));
+          showMessage(
+            deleteResult.message ??
+              'Los datos se guardaron pero no pudimos eliminar las imágenes.',
+            'error',
+          );
+          return;
+        }
+      }
+
+      // 3. Subir nuevas imágenes DESPUÉS de eliminar
+      if (files.length > 0) {
+        const imagesData = new FormData();
+        files.forEach((file) => imagesData.append('photos', file));
+
+        const imagesResponse = await fetch(
+          `/api/admin/products/${productId}/images`,
+          {
+            method: 'POST',
+            body: imagesData,
+          },
+        );
+
+        if (!imagesResponse.ok) {
+          const imagesResult = await imagesResponse.json().catch(() => ({}));
+          showMessage(
+            imagesResult.message ??
+              'Los datos se guardaron pero no pudimos subir las nuevas imágenes.',
+            'error',
+          );
+          return;
+        }
+      }
+
+      hasUnsavedChanges = false;
+      window.location.assign('/admin/products?updated=1');
     } catch {
       showMessage(
         'No se pudo conectar al servidor. Tus datos siguen aquí para que puedas reintentar.',
@@ -326,7 +518,7 @@ const { categories } = Astro.props;
       );
     } finally {
       submitButton.disabled = false;
-      submitButton.textContent = 'Guardar producto';
+      submitButton.textContent = 'Guardar cambios';
     }
   });
 </script>
