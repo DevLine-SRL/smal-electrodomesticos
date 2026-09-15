@@ -8,8 +8,9 @@ interface Props {
 const { product } = Astro.props;
 ---
 
-<article
-  class="border-border-subtle bg-card shadow-inner-dark overflow-hidden rounded-3xl border"
+<a
+  href={`/producto/${encodeURIComponent(product.slug)}`}
+  class="border-border-subtle bg-card shadow-inner-dark block overflow-hidden rounded-3xl border transition-colors hover:border-primary-400 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
 >
   {
     product.imageUrl ? (
@@ -54,7 +55,7 @@ const { product } = Astro.props;
       Bs {product.price.toLocaleString('es-BO')}
     </p>
   </div>
-</article>
+</a>
 
 <script>
   for (const card of document.querySelectorAll('[data-image-card]')) {

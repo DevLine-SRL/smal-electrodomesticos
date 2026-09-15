@@ -1,52 +1,26 @@
----
-export const prerender = true;
+﻿---
+export const prerender = false;
 
-import PublicLayout from '../../layouts/PublicLayout.astro';
-import ProductContact from '../../components/products/ProductContact.tsx';
-import { PRODUCTS } from '../../data/products';
+import { getProductDetail } from '../../services/products/detail';
 
-export function getStaticPaths() {
-  return PRODUCTS.map((product) => ({
-    params: { id: String(product.id) },
-    props: { product },
-  }));
+// Preserve previously shared links using the canonical slug from the database.
+const identifier = Astro.params.id ?? '';
+const isUuid =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    identifier,
+  );
+if (isUuid) {
+  try {
+    const product = await getProductDetail(identifier, true);
+    if (product)
+      return Astro.redirect(
+        `/producto/${encodeURIComponent(product.slug)}`,
+        301,
+      );
+  } catch {
+    // The detail route renders a friendly 503 if the backend remains unavailable.
+  }
+  return Astro.rewrite(`/producto/${encodeURIComponent(identifier)}`);
 }
-
-interface Props {
-  product: (typeof PRODUCTS)[number];
-}
-
-const { product } = Astro.props;
+return Astro.redirect(`/producto/${encodeURIComponent(identifier)}`, 301);
 ---
-
-<PublicLayout title={`${product.name} | Tu Electrodoméstico`}>
-  <a
-    href="/"
-    class="text-text-muted hover:text-text-primary mb-6 inline-block text-sm font-medium transition"
-  >
-    ← Volver al inicio
-  </a>
-
-  <article
-    class="border-border-subtle bg-card shadow-inner-dark flex flex-col gap-8 rounded-2xl border p-8 md:flex-row"
-  >
-    <div
-      class="bg-background-soft flex items-center justify-center rounded-xl p-16 text-8xl"
-    >
-      {product.emoji}
-    </div>
-
-    <div class="flex flex-1 flex-col">
-      <h1 class="text-text-primary text-3xl font-bold">{product.name}</h1>
-      <p class="text-text-muted mt-2 text-sm">SKU: {product.sku}</p>
-      <p class="text-text-secondary mt-4">{product.description}</p>
-      <p class="text-primary-400 mt-6 text-3xl font-bold">
-        ${product.price.toLocaleString('es-MX')}
-      </p>
-
-      <div class="mt-8">
-        <ProductContact product={product} client:load />
-      </div>
-    </div>
-  </article>
-</PublicLayout>

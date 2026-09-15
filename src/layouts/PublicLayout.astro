@@ -13,6 +13,7 @@ const { title, description, full = false } = Astro.props;
 ---
 
 <Base title={title} description={description}>
+  <slot name="head" slot="head" />
   <div class="flex min-h-screen flex-col">
     <Navbar />
 
