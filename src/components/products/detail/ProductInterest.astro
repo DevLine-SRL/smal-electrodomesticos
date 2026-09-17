@@ -1,0 +1,57 @@
+---
+interface Props {
+  name: string;
+  price: number;
+  url: string;
+  available: boolean;
+  sold: boolean;
+}
+
+const { name, price, url, available, sold } = Astro.props;
+const number = (import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '').replace(
+  /\D/g,
+  '',
+);
+const message = `Hola, me interesa ${name}. Precio: Bs ${price.toLocaleString('es-BO')}.\n${url}`;
+const href = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+---
+
+<div class="mt-8">
+  {
+    available && number ? (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-product-interest
+        class="bg-primary-400 text-primary-950 hover:bg-primary-300 focus-visible:outline-primary-400 flex min-h-14 w-full items-center justify-center rounded-full px-8 py-4 text-lg font-bold transition focus-visible:outline-2 focus-visible:outline-offset-4"
+      >
+        Me interesa · WhatsApp{' '}
+        <span aria-hidden="true" class="ml-3">
+          ↗
+        </span>
+      </a>
+    ) : (
+      <button
+        type="button"
+        disabled
+        class="bg-background-soft text-text-muted border-border-subtle min-h-14 w-full cursor-not-allowed rounded-full border px-8 py-4 font-bold"
+      >
+        {sold
+          ? 'Producto vendido'
+          : !available
+            ? 'Producto agotado'
+            : 'Contacto no disponible'}
+      </button>
+    )
+  }
+  <p class="text-text-muted mt-3 text-center text-sm">
+    {
+      available
+        ? number
+          ? 'Consulta por este producto directamente con nuestro equipo.'
+          : 'El contacto por WhatsApp estará disponible próximamente.'
+        : 'Explora el catálogo para encontrar otros productos disponibles.'
+    }
+  </p>
+</div>

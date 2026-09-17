@@ -1,0 +1,169 @@
+---
+export const prerender = false;
+
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import ProductGallery from '../../components/products/detail/ProductGallery.astro';
+import ProductInterest from '../../components/products/detail/ProductInterest.astro';
+import {
+  getProductDetail,
+  type ProductDetail,
+} from '../../services/products/publicDetail';
+
+let product: ProductDetail | null = null;
+let unavailable = false;
+try {
+  product = await getProductDetail(Astro.params.slug ?? '');
+} catch {
+  unavailable = true;
+}
+
+if (!product) Astro.response.status = unavailable ? 503 : 404;
+Astro.response.headers.set('Cache-Control', 'no-store');
+if (unavailable) Astro.response.headers.set('Retry-After', '60');
+
+const title = product
+  ? `${product.name} | SMAL`
+  : unavailable
+    ? 'Producto temporalmente no disponible | SMAL'
+    : 'Producto no encontrado | SMAL';
+const description = product
+  ? (
+      product.description ||
+      `Conoce ${product.name} en SMAL. Precio: Bs ${product.price.toLocaleString('es-BO')}.`
+    )
+      .replace(/\s+/g, ' ')
+      .slice(0, 180)
+  : 'Encuentra electrodomésticos para tu hogar en el catálogo de SMAL.';
+const canonical = new URL(
+  `/producto/${encodeURIComponent(product?.slug ?? Astro.params.slug ?? '')}`,
+  Astro.site ?? Astro.url.origin,
+).href;
+const cover = product?.images[0]?.url;
+---
+
+<PublicLayout title={title} description={description}>
+  <Fragment slot="head">
+    {
+      product ? (
+        <>
+          <link rel="canonical" href={canonical} />
+          <meta property="og:type" content="product" />
+          <meta property="og:site_name" content="SMAL" />
+          <meta property="og:locale" content="es_BO" />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="og:url" content={canonical} />
+          {cover && (
+            <meta
+              property="og:image"
+              content={new URL(cover, Astro.url.origin).href}
+            />
+          )}
+          {cover && <meta property="og:image:alt" content={product.name} />}
+          <meta
+            name="twitter:card"
+            content={cover ? 'summary_large_image' : 'summary'}
+          />
+          <meta name="twitter:title" content={title} />
+          <meta name="twitter:description" content={description} />
+          {cover && (
+            <meta
+              name="twitter:image"
+              content={new URL(cover, Astro.url.origin).href}
+            />
+          )}
+        </>
+      ) : (
+        <meta name="robots" content="noindex" />
+      )
+    }
+  </Fragment>
+
+  <nav aria-label="Navegación del producto" class="mb-8 sm:mb-12">
+    <a
+      href="/products"
+      class="text-text-secondary hover:text-primary-400 inline-flex min-h-11 items-center gap-3 font-semibold"
+    >
+      <span aria-hidden="true">←</span> Volver al catálogo
+    </a>
+  </nav>
+
+  {
+    product ? (
+      <article class="grid min-w-0 gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+        <ProductGallery name={product.name} images={product.images} />
+        <div class="min-w-0 lg:py-4">
+          <p class="text-primary-400 text-xs font-bold tracking-[0.18em] uppercase">
+            {product.category}
+          </p>
+          <h1 class="font-display mt-4 text-3xl leading-tight font-extrabold break-words text-white sm:text-5xl">
+            {product.name}
+          </h1>
+          <p
+            class:list={[
+              'mt-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold',
+              product.available
+                ? 'border-primary-400/30 text-primary-400'
+                : 'border-border-subtle text-text-secondary',
+            ]}
+          >
+            <span aria-hidden="true" class="h-2 w-2 rounded-full bg-current" />
+            {product.status === 'sold'
+              ? 'Vendido'
+              : product.available
+                ? 'Disponible'
+                : 'Agotado'}
+          </p>
+          <div class="border-border-subtle mt-8 border-y py-7">
+            <p class="text-text-muted text-sm">Precio de contado</p>
+            <p class="text-primary-400 font-display mt-2 text-4xl font-extrabold sm:text-5xl">
+              <span class="text-xl">Bs</span>{' '}
+              {product.price.toLocaleString('es-BO', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+          <section class="mt-8" aria-labelledby="product-description">
+            <h2 id="product-description" class="text-lg font-bold text-white">
+              Sobre este producto
+            </h2>
+            <p class="text-text-secondary mt-3 leading-relaxed break-words whitespace-pre-wrap">
+              {product.description ||
+                'La descripción de este producto estará disponible próximamente.'}
+            </p>
+          </section>
+          <ProductInterest
+            name={product.name}
+            price={product.price}
+            url={canonical}
+            available={product.available}
+            sold={product.status === 'sold'}
+          />
+        </div>
+      </article>
+    ) : (
+      <section class="mx-auto max-w-xl py-16 text-center sm:py-24">
+        <p class="font-display text-primary-400 text-7xl font-extrabold">
+          {unavailable ? 'Un momento' : '404'}
+        </p>
+        <h1 class="font-display mt-6 text-3xl font-bold text-white">
+          {unavailable
+            ? 'No pudimos cargar este producto'
+            : 'No encontramos este producto'}
+        </h1>
+        <p class="text-text-secondary mt-4 leading-relaxed">
+          {unavailable
+            ? 'Intenta nuevamente en unos minutos. Estamos trabajando para que puedas seguir explorando.'
+            : 'Puede que ya no esté publicado o que el enlace sea incorrecto. Descubre otras opciones en nuestro catálogo.'}
+        </p>
+        <a
+          href="/products"
+          class="bg-primary-400 text-primary-950 mt-8 inline-flex min-h-12 items-center rounded-full px-7 py-3 font-bold"
+        >
+          Explorar catálogo
+        </a>
+      </section>
+    )
+  }
+</PublicLayout>
