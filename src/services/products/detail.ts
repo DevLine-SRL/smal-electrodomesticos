@@ -1,40 +1,54 @@
-import { supabase } from '../../db/supabase';
+import type { ServerSupabaseClient } from '../../db/supabase-server';
+import type { ProductDetail, ProductStatus } from '../../types/products';
 
-/** A public lookup never uses the administrator's session or a service key. */
-export async function getProductDetail(identifier: string, byId = false) {
-  const { data, error } = await supabase
-    .from('products')
-    .select(
-      'id, slug, name, description, price, quantity, status, categories(name), product_images(id, url, position)',
-    )
-    .eq('active', true)
-    .eq(byId ? 'id' : 'slug', identifier)
-    .maybeSingle();
-
-  if (error)
-    throw new Error('Product detail is temporarily unavailable', {
-      cause: error,
-    });
-  if (!data) return null;
-
-  const category = Array.isArray(data.categories)
-    ? data.categories[0]
-    : data.categories;
-  return {
-    id: data.id,
-    slug: data.slug,
-    name: data.name,
-    description: data.description,
-    price: data.price,
-    status: data.status,
-    available: data.status === 'available' && data.quantity > 0,
-    category: category?.name ?? 'Electrodomésticos',
-    images: [...data.product_images].sort(
-      (a, b) => a.position - b.position || a.id.localeCompare(b.id),
-    ),
-  };
+interface ProductRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  quantity: number;
+  status: ProductStatus;
+  category_id: string | null;
+  categories: { name: string } | { name: string }[] | null;
+  product_images: { id: string; url: string; position: number }[] | null;
 }
 
-export type ProductDetail = NonNullable<
-  Awaited<ReturnType<typeof getProductDetail>>
->;
+export const getProductDetail = async (
+  client: ServerSupabaseClient,
+  productId: string,
+): Promise<ProductDetail | null> => {
+  const { data, error } = await client
+    .from('products')
+    .select(
+      'id, name, slug, description, price, quantity, status, category_id, categories(name), product_images(id, url, position)',
+    )
+    .eq('id', productId)
+    .eq('active', true)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const row = data as ProductRow;
+
+  const category = Array.isArray(row.categories)
+    ? row.categories[0]
+    : row.categories;
+
+  const images = Array.isArray(row.product_images)
+    ? [...row.product_images].sort((a, b) => a.position - b.position)
+    : [];
+
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    price: row.price,
+    quantity: row.quantity,
+    status: row.status,
+    categoryId: row.category_id,
+    categoryName: category?.name ?? 'Sin categoría',
+    images,
+  };
+};

@@ -27,20 +27,21 @@ const CONFIRM_MESSAGES: Record<string, (name: string) => string> = {
 
 const ALL_STATUSES: ProductStatus[] = ['available', 'out_of_stock', 'sold'];
 
-const SEGMENT_STYLES: Record<ProductStatus, { active: string; idle: string }> = {
-  available: {
-    active: 'bg-success-500/15 text-success-500 border-success-500/40',
-    idle: 'text-text-muted hover:text-success-500',
-  },
-  out_of_stock: {
-    active: 'bg-warning-400/15 text-warning-400 border-warning-400/40',
-    idle: 'text-text-muted hover:text-warning-400',
-  },
-  sold: {
-    active: 'bg-error-500/15 text-error-500 border-error-500/40',
-    idle: 'text-text-muted hover:text-error-500',
-  },
-};
+const SEGMENT_STYLES: Record<ProductStatus, { active: string; idle: string }> =
+  {
+    available: {
+      active: 'bg-success-500/15 text-success-500 border-success-500/40',
+      idle: 'text-text-muted hover:text-success-500',
+    },
+    out_of_stock: {
+      active: 'bg-warning-400/15 text-warning-400 border-warning-400/40',
+      idle: 'text-text-muted hover:text-warning-400',
+    },
+    sold: {
+      active: 'bg-error-500/15 text-error-500 border-error-500/40',
+      idle: 'text-text-muted hover:text-error-500',
+    },
+  };
 
 const SOURCE_LABELS: Record<StatusChangeSource, string> = {
   automatic: 'auto',

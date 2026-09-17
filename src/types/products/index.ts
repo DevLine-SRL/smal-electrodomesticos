@@ -64,3 +64,22 @@ export interface AdminProductsResult {
   paginationPages: number[];
   buildPageHref: (targetPage: number) => string;
 }
+
+export interface ProductImage {
+  id: string;
+  url: string;
+  position: number;
+}
+
+export interface ProductDetail {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  quantity: number;
+  status: ProductStatus;
+  categoryId: string | null;
+  categoryName: string;
+  images: ProductImage[];
+}

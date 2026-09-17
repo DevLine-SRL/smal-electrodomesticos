@@ -1,7 +1,7 @@
 ﻿---
 export const prerender = false;
 
-import { getProductDetail } from '../../services/products/detail';
+import { getProductDetail } from '../../services/products/publicDetail';
 
 // Preserve previously shared links using the canonical slug from the database.
 const identifier = Astro.params.id ?? '';

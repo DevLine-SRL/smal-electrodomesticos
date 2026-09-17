@@ -83,8 +83,8 @@ const stockColor = (q: number) => {
 
         {/* Acciones: separadas del cluster de información con su propio corte visual */}
         <div class="border-border-subtle flex gap-2 border-t pt-3">
-          <button
-            type="button"
+          <a
+            href={`/admin/products/${product.id}/edit`}
             class="border-border-subtle text-text-secondary hover:border-primary-400 hover:text-primary-400 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors"
           >
             <svg
@@ -101,7 +101,7 @@ const stockColor = (q: number) => {
               />
             </svg>
             Editar
-          </button>
+          </a>
           <button
             type="button"
             class="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors"
@@ -188,8 +188,8 @@ const stockColor = (q: number) => {
           </div>
 
           <div class="flex shrink-0 items-center gap-1.5">
-            <button
-              type="button"
+            <a
+              href={`/admin/products/${product.id}/edit`}
               class="border-border-subtle text-text-secondary hover:border-primary-400 hover:text-primary-400 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors"
             >
               <svg
@@ -206,7 +206,7 @@ const stockColor = (q: number) => {
                 />
               </svg>
               Editar
-            </button>
+            </a>
             <button
               type="button"
               class="border-border-subtle text-text-secondary hover:border-error-500 hover:text-error-500 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors"
