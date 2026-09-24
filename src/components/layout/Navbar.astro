@@ -131,25 +131,32 @@ import XIcon from 'virtual:icons/lucide/x?astro';
   const toggle = document.getElementById('menu-toggle');
   const close = document.getElementById('menu-close');
   const menu = document.getElementById('mobile-menu');
-  const links = menu.querySelectorAll('a');
+
+  if (!toggle || !close || !menu) {
+    throw new Error('Mobile menu elements are missing');
+  }
+
+  const menuElement = menu;
+  const toggleElement = toggle;
+  const links = menuElement.querySelectorAll('a');
 
   function openMenu() {
-    menu.classList.add('is-open');
-    menu.removeAttribute('inert');
-    menu.setAttribute('aria-hidden', 'false');
-    toggle.setAttribute('aria-expanded', 'true');
+    menuElement.classList.add('is-open');
+    menuElement.removeAttribute('inert');
+    menuElement.setAttribute('aria-hidden', 'false');
+    toggleElement.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
   }
 
   function closeMenu() {
-    menu.classList.remove('is-open');
-    menu.setAttribute('inert', '');
-    menu.setAttribute('aria-hidden', 'true');
-    toggle.setAttribute('aria-expanded', 'false');
+    menuElement.classList.remove('is-open');
+    menuElement.setAttribute('inert', '');
+    menuElement.setAttribute('aria-hidden', 'true');
+    toggleElement.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   }
 
-  toggle.addEventListener('click', openMenu);
+  toggleElement.addEventListener('click', openMenu);
   close.addEventListener('click', closeMenu);
   links.forEach((link) => link.addEventListener('click', closeMenu));
   document.addEventListener('keydown', (event) => {

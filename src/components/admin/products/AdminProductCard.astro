@@ -1,5 +1,9 @@
 ---
 import ProductStatusControl from './ProductStatusControl';
+import PriceEditor from '../PriceEditor';
+import StockQuantityEditor from '../StockQuantityEditor';
+import StockDeduction from '../StockDeduction';
+import StockMovementHistory from '../StockMovementHistory';
 import type { AdminProductListItem } from '../../../types/products';
 
 interface Props {
@@ -55,21 +59,8 @@ const stockColor = (q: number) => {
           </div>
 
           <div class="flex items-center justify-between">
-            <p class="text-primary-400 text-xl font-extrabold">
-              {formatPrice(product.price)}
-            </p>
-            <span
-              class={`text-sm font-semibold ${stockColor(product.quantity)}`}
-            >
-              {product.quantity === 0 ? (
-                <span class="text-error-500">Sin stock</span>
-              ) : (
-                stockLabel(product.quantity)
-              )}
-              {product.quantity > 0 && product.quantity <= 2 && (
-                <span class="text-warning-400 ml-1">!</span>
-              )}
-            </span>
+            <PriceEditor client:idle productId={product.id} price={product.price} sold={product.status === 'sold'} />
+            <StockQuantityEditor client:idle productId={product.id} quantity={product.quantity} sold={product.status === 'sold'} />
           </div>
 
           <ProductStatusControl
@@ -79,6 +70,8 @@ const stockColor = (q: number) => {
             initialStatus={product.status}
             initialSource={product.lastStatusSource}
           />
+          <StockDeduction client:idle productId={product.id} quantity={product.quantity} />
+          <StockMovementHistory client:idle productId={product.id} />
         </div>
 
         {/* Acciones: separadas del cluster de información con su propio corte visual */}
@@ -161,22 +154,8 @@ const stockColor = (q: number) => {
         */}
         <div class="border-border-subtle/60 flex w-full flex-wrap items-center justify-between gap-3 border-t pt-2 sm:w-auto sm:flex-1 sm:border-t-0 sm:pt-0">
           <div class="flex flex-wrap items-center gap-3">
-            <p class="text-primary-400 text-base font-extrabold whitespace-nowrap">
-              {formatPrice(product.price)}
-            </p>
-
-            <span
-              class={`text-xs font-semibold whitespace-nowrap ${stockColor(product.quantity)}`}
-            >
-              {product.quantity === 0 ? (
-                <span class="text-error-500">Sin stock</span>
-              ) : (
-                stockLabel(product.quantity)
-              )}
-              {product.quantity > 0 && product.quantity <= 2 && (
-                <span class="text-warning-400 ml-0.5">!</span>
-              )}
-            </span>
+            <PriceEditor client:idle productId={product.id} price={product.price} sold={product.status === 'sold'} />
+            <StockQuantityEditor client:idle productId={product.id} quantity={product.quantity} sold={product.status === 'sold'} />
 
             <ProductStatusControl
               client:idle
@@ -185,6 +164,8 @@ const stockColor = (q: number) => {
               initialStatus={product.status}
               initialSource={product.lastStatusSource}
             />
+            <StockDeduction client:idle productId={product.id} quantity={product.quantity} />
+            <StockMovementHistory client:idle productId={product.id} />
           </div>
 
           <div class="flex shrink-0 items-center gap-1.5">

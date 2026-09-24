@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿---
 export const prerender = false;
 
@@ -24,3 +25,66 @@ if (isUuid) {
 }
 return Astro.redirect(`/producto/${encodeURIComponent(identifier)}`, 301);
 ---
+=======
+---
+export const prerender = false;
+
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import ProductContact from '../../components/products/ProductContact.tsx';
+import { getProductDetail } from '../../services/products/detail';
+
+const product = await getProductDetail(Astro.locals.supabase, Astro.params.id ?? '');
+
+if (!product) return Astro.redirect('/404');
+
+const contactProduct = {
+  id: product.id,
+  name: product.name,
+  price: product.price,
+  sku: product.slug,
+  emoji: '',
+  description: product.description ?? '',
+  available: product.status === 'available' && product.quantity > 0,
+};
+---
+
+<PublicLayout title={`${product.name} | Tu Electrodoméstico`}>
+  <a
+    href="/"
+    class="text-text-muted hover:text-text-primary mb-6 inline-block text-sm font-medium transition"
+  >
+    ← Volver al inicio
+  </a>
+
+  <article
+    class="border-border-subtle bg-card shadow-inner-dark flex flex-col gap-8 rounded-2xl border p-8 md:flex-row"
+  >
+    <div
+      class="bg-background-soft flex items-center justify-center rounded-xl p-16 text-8xl"
+    >
+      {product.images[0] ? (
+        <img
+          src={product.images[0].url}
+          alt={product.name}
+          class="h-full w-full rounded-xl object-cover"
+        />
+      ) : (
+        <span class="text-text-muted text-base">Sin imagen</span>
+      )}
+    </div>
+
+    <div class="flex flex-1 flex-col">
+      <h1 class="text-text-primary text-3xl font-bold">{product.name}</h1>
+      <p class="text-text-muted mt-2 text-sm">SKU: {product.slug}</p>
+      <p class="text-text-secondary mt-4">{product.description}</p>
+      <p class="text-primary-400 mt-6 text-3xl font-bold">
+        Bs {product.price.toLocaleString('es-BO', { minimumFractionDigits: 2 })}
+      </p>
+
+      <div class="mt-8">
+        <ProductContact product={contactProduct} client:load />
+      </div>
+    </div>
+  </article>
+</PublicLayout>
+>>>>>>> 0678840 (Implementar HU-04, HU-05 y HU-06, simar)
