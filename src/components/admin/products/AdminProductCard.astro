@@ -12,17 +12,6 @@ interface Props {
 }
 
 const { product, view = 'grid' } = Astro.props;
-
-const formatPrice = (price: number) =>
-  `Bs ${price.toLocaleString('es-BO', { minimumFractionDigits: 2 })}`;
-
-const stockLabel = (q: number) => (q === 1 ? '1 ud' : `${q} uds`);
-
-const stockColor = (q: number) => {
-  if (q === 0) return 'text-error-500';
-  if (q <= 2) return 'text-warning-400';
-  return 'text-text-secondary';
-};
 ---
 
 {
@@ -59,8 +48,18 @@ const stockColor = (q: number) => {
           </div>
 
           <div class="flex items-center justify-between">
-            <PriceEditor client:idle productId={product.id} price={product.price} sold={product.status === 'sold'} />
-            <StockQuantityEditor client:idle productId={product.id} quantity={product.quantity} sold={product.status === 'sold'} />
+            <PriceEditor
+              client:idle
+              productId={product.id}
+              price={product.price}
+              sold={product.status === 'sold'}
+            />
+            <StockQuantityEditor
+              client:idle
+              productId={product.id}
+              quantity={product.quantity}
+              sold={product.status === 'sold'}
+            />
           </div>
 
           <ProductStatusControl
@@ -70,7 +69,11 @@ const stockColor = (q: number) => {
             initialStatus={product.status}
             initialSource={product.lastStatusSource}
           />
-          <StockDeduction client:idle productId={product.id} quantity={product.quantity} />
+          <StockDeduction
+            client:idle
+            productId={product.id}
+            quantity={product.quantity}
+          />
           <StockMovementHistory client:idle productId={product.id} />
         </div>
 
@@ -154,8 +157,18 @@ const stockColor = (q: number) => {
         */}
         <div class="border-border-subtle/60 flex w-full flex-wrap items-center justify-between gap-3 border-t pt-2 sm:w-auto sm:flex-1 sm:border-t-0 sm:pt-0">
           <div class="flex flex-wrap items-center gap-3">
-            <PriceEditor client:idle productId={product.id} price={product.price} sold={product.status === 'sold'} />
-            <StockQuantityEditor client:idle productId={product.id} quantity={product.quantity} sold={product.status === 'sold'} />
+            <PriceEditor
+              client:idle
+              productId={product.id}
+              price={product.price}
+              sold={product.status === 'sold'}
+            />
+            <StockQuantityEditor
+              client:idle
+              productId={product.id}
+              quantity={product.quantity}
+              sold={product.status === 'sold'}
+            />
 
             <ProductStatusControl
               client:idle
@@ -164,7 +177,11 @@ const stockColor = (q: number) => {
               initialStatus={product.status}
               initialSource={product.lastStatusSource}
             />
-            <StockDeduction client:idle productId={product.id} quantity={product.quantity} />
+            <StockDeduction
+              client:idle
+              productId={product.id}
+              quantity={product.quantity}
+            />
             <StockMovementHistory client:idle productId={product.id} />
           </div>
 

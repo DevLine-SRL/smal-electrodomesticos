@@ -256,7 +256,7 @@ const MAX_IMAGES = 4;
   </div>
 </form>
 
-<script define:vars={{ MAX_IMAGES }}>
+<script is:inline define:vars={{ MAX_IMAGES }}>
   const form = document.querySelector('#edit-product-form');
   const photoInput = document.querySelector('#product-photos');
   const previews = document.querySelector('#photo-previews');
@@ -384,7 +384,6 @@ const MAX_IMAGES = 4;
   window.addEventListener('beforeunload', (e) => {
     if (hasUnsavedChanges) {
       e.preventDefault();
-      e.returnValue = '';
     }
   });
 

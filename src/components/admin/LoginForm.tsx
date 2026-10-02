@@ -57,7 +57,7 @@ export default function LoginForm({ next }: Props) {
 
   const locked = lockSeconds > 0;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
 

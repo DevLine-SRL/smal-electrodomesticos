@@ -1,5 +1,6 @@
 ---
 interface Props {
+  productId: string;
   name: string;
   price: number;
   url: string;
@@ -7,7 +8,7 @@ interface Props {
   sold: boolean;
 }
 
-const { name, price, url, available, sold } = Astro.props;
+const { productId, name, price, url, available, sold } = Astro.props;
 const number = (import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '').replace(
   /\D/g,
   '',
@@ -24,6 +25,7 @@ const href = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
         target="_blank"
         rel="noopener noreferrer"
         data-product-interest
+        data-product-id={productId}
         class="bg-primary-400 text-primary-950 hover:bg-primary-300 focus-visible:outline-primary-400 flex min-h-14 w-full items-center justify-center rounded-full px-8 py-4 text-lg font-bold transition focus-visible:outline-2 focus-visible:outline-offset-4"
       >
         Me interesa · WhatsApp{' '}
@@ -55,3 +57,33 @@ const href = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
     }
   </p>
 </div>
+
+<script>
+  const productLinks = document.querySelectorAll('[data-product-interest]');
+
+  productLinks.forEach((link) => {
+    link.addEventListener('click', async (event) => {
+      const anchor = event.currentTarget;
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+
+      const productId = anchor.dataset.productId;
+      const targetHref = anchor.href;
+
+      if (!productId || !targetHref) return;
+
+      event.preventDefault();
+
+      try {
+        await fetch(`/api/products/${productId}/interest`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ channel: 'whatsapp' }),
+        });
+      } catch {
+        // El registro de interés no bloquea el contacto.
+      } finally {
+        window.open(targetHref, '_blank', 'noopener,noreferrer');
+      }
+    });
+  });
+</script>

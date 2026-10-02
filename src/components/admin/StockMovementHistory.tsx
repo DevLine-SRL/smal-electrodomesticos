@@ -1,18 +1,78 @@
 import { useState } from 'react';
 import { showToast } from './toast';
 
-interface Movement { id: string; movement_type: 'adjustment' | 'deduction'; quantity_change: number; quantity_before: number; quantity_after: number; reason: string | null; created_at: string }
+type HistoryKind = 'stock' | 'price' | 'status';
 
-export default function StockMovementHistory({ productId }: { productId: string }) {
-  const [open, setOpen] = useState(false); const [movements, setMovements] = useState<Movement[]>([]); const [loaded, setLoaded] = useState(false);
+interface HistoryEntry {
+  id: string;
+  kind: HistoryKind;
+  created_at: string;
+  userName: string | null;
+  title: string;
+  detail: string;
+}
+
+export default function StockMovementHistory({
+  productId,
+}: {
+  productId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [movements, setMovements] = useState<HistoryEntry[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
   const toggle = async () => {
     if (!open && !loaded) {
-      const response = await fetch(`/api/admin/products/${productId}/stock-history`);
+      const response = await fetch(`/api/admin/products/${productId}/history`);
       const body = await response.json().catch(() => ({}));
-      if (!response.ok) return showToast('No se pudo cargar el historial.', 'error');
-      setMovements(body.movements); setLoaded(true);
+      if (!response.ok)
+        return showToast('No se pudo cargar el historial.', 'error');
+      setMovements(Array.isArray(body.history) ? body.history : []);
+      setLoaded(true);
     }
     setOpen((value) => !value);
   };
-  return <div><button type="button" onClick={() => void toggle()} className="text-text-muted hover:text-primary-300 text-xs font-semibold">Historial</button>{open && <div className="border-border-subtle bg-background-soft mt-2 max-h-40 overflow-auto rounded-lg border p-2 text-xs">{movements.length === 0 ? <p className="text-text-muted p-1">Sin movimientos registrados.</p> : movements.map((movement) => <div key={movement.id} className="border-border-subtle border-b px-1 py-2 last:border-0"><span className="text-warning-400 font-bold">{movement.movement_type === 'deduction' ? 'Resta' : 'Ajuste'}: {movement.quantity_change} u.</span> · {movement.quantity_before} → {movement.quantity_after}<br /><span className="text-text-muted">{movement.reason || 'Sin motivo'} · {new Date(movement.created_at).toLocaleString('es-BO')}</span></div>)}</div>}</div>;
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => void toggle()}
+        className="text-text-muted hover:text-primary-300 text-xs font-semibold"
+      >
+        Historial
+      </button>
+      {open && (
+        <div className="border-border-subtle bg-background-soft mt-2 max-h-56 overflow-auto rounded-lg border p-2 text-xs">
+          {movements.length === 0 ? (
+            <p className="text-text-muted p-1">Sin movimientos registrados.</p>
+          ) : (
+            movements.map((movement) => (
+              <div
+                key={movement.id}
+                className="border-border-subtle border-b px-1 py-2 last:border-0"
+              >
+                <span
+                  className={
+                    movement.kind === 'status'
+                      ? 'text-primary-400 font-bold'
+                      : movement.kind === 'price'
+                        ? 'text-success-500 font-bold'
+                        : 'text-warning-400 font-bold'
+                  }
+                >
+                  {movement.title}
+                </span>
+                <div className="text-text-secondary mt-1">{movement.detail}</div>
+                <div className="text-text-muted mt-1">
+                  {movement.userName ?? 'Sistema'} ·{' '}
+                  {new Date(movement.created_at).toLocaleString('es-BO')}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
