@@ -9,6 +9,11 @@ interface ProductFilters {
   categoryId: string | null;
 }
 
+const buildSearchFilter = (searchTerm: string) => {
+  const escaped = searchTerm.replace(/[\\"(),]/g, ' ').trim();
+  return `name.ilike.%${escaped}%,brand.ilike.%${escaped}%`;
+};
+
 export const countAvailableProducts = async (
   filters: ProductFilters,
 ): Promise<number> => {
@@ -17,9 +22,10 @@ export const countAvailableProducts = async (
     .select('id', { count: 'exact', head: true })
     .eq('active', true)
     .eq('status', 'available');
+  query = query.gt('quantity', 0);
 
   if (filters.searchTerm) {
-    query = query.ilike('name', `%${filters.searchTerm}%`);
+    query = query.or(buildSearchFilter(filters.searchTerm));
   }
 
   if (filters.categoryId) {
@@ -40,15 +46,16 @@ export const fetchAvailableProducts = async (
   let query = supabase
     .from('products')
     .select(
-      'id, name, slug, price, product_images(url, position), categories(name, slug)',
+      'id, name, brand, slug, price, product_images(url, position), categories(name, slug)',
     )
     .eq('active', true)
     .eq('status', 'available')
+    .gt('quantity', 0)
     .order('created_at', { ascending: false })
     .range(from, to);
 
   if (filters.searchTerm) {
-    query = query.ilike('name', `%${filters.searchTerm}%`);
+    query = query.or(buildSearchFilter(filters.searchTerm));
   }
   if (filters.categoryId) {
     query = query.eq('category_id', filters.categoryId);

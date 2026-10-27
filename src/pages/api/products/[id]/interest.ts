@@ -14,24 +14,30 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return json({ code: 'invalid_request' }, 400);
   }
 
-  const contentType = request.headers.get('content-type') ?? '';
-  let channel = 'whatsapp';
-
-  if (contentType.includes('application/json')) {
-    const payload = await request.json().catch(() => ({}));
-    if (typeof payload?.channel === 'string' && payload.channel.trim()) {
-      channel = payload.channel.trim();
-    }
+  const payload = await request.json().catch(() => null);
+  const channel = payload?.channel;
+  if (channel !== 'whatsapp' && channel !== 'phone') {
+    return json({ code: 'invalid_channel' }, 400);
   }
+
+  const { data: product, error: productError } = await locals.supabase
+    .from('products')
+    .select('id')
+    .eq('id', productId)
+    .eq('active', true)
+    .eq('status', 'available')
+    .gt('quantity', 0)
+    .maybeSingle();
+
+  if (productError) return json({ code: 'interest_unavailable' }, 503);
+  if (!product) return json({ code: 'product_unavailable' }, 404);
 
   const { error } = await locals.supabase.from('product_interests').insert({
     product_id: productId,
     channel,
   });
 
-  if (error) {
-    return json({ code: 'interest_insert_failed', error: error.message }, 500);
-  }
+  if (error) return json({ code: 'interest_unavailable' }, 503);
 
   return json({ ok: true }, 200);
 };

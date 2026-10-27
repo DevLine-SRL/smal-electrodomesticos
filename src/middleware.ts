@@ -20,6 +20,13 @@ const unauthorized = () =>
     headers: { 'content-type': 'application/json' },
   });
 
+const privateResponse = (response: Response) => {
+  response.headers.set('Cache-Control', 'private, no-store');
+  response.headers.set('Expires', '0');
+  response.headers.set('Pragma', 'no-cache');
+  return response;
+};
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const { cookies, locals, request, url, redirect } = context;
 
@@ -57,7 +64,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     locals.profile = await getAdminProfile(supabase, user.id);
   }
 
-  if (!needsAdmin) return next();
+  if (!needsAdmin) return privateResponse(await next());
 
   if (!locals.user || !locals.profile) {
     // Sesion expirada, inexistente o de alguien que ya no es admin activo.
@@ -65,10 +72,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     locals.user = null;
     locals.profile = null;
 
-    return isAdminApi(pathname)
-      ? unauthorized()
-      : redirect(buildLoginRedirect(pathname + url.search));
+    return privateResponse(
+      isAdminApi(pathname)
+        ? unauthorized()
+        : redirect(buildLoginRedirect(pathname + url.search)),
+    );
   }
 
-  return next();
+  return privateResponse(await next());
 });

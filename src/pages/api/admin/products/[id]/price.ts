@@ -17,7 +17,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   if (
     !Number.isFinite(price) ||
     price <= 0 ||
-    Math.round(price * 100) !== price * 100
+    Math.abs(price * 100 - Math.round(price * 100)) > 1e-8
   ) {
     return json({ code: 'invalid_price' }, 422);
   }
@@ -31,5 +31,5 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return json({ code: 'not_found' }, 404);
   if (error.message.includes('forbidden'))
     return json({ code: 'forbidden' }, 403);
-  return json({ code: 'update_failed' }, 422);
+  return json({ code: 'update_failed' }, 503);
 };

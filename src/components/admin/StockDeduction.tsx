@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { showToast } from './toast';
 
 interface Props {
@@ -17,6 +17,22 @@ export default function StockDeduction({
   const [value, setValue] = useState('');
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    const syncQuantity = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{ productId: string; quantity?: number }>
+      ).detail;
+      if (
+        detail?.productId === productId &&
+        typeof detail.quantity === 'number'
+      ) {
+        setCurrentQuantity(detail.quantity);
+      }
+    };
+    window.addEventListener('smal:product-updated', syncQuantity);
+    return () =>
+      window.removeEventListener('smal:product-updated', syncQuantity);
+  }, [productId]);
   const save = async () => {
     const amount = Number(value);
     if (!Number.isInteger(amount) || amount <= 0)
@@ -39,12 +55,22 @@ export default function StockDeduction({
             : 'No se pudo descontar el stock.',
           'error',
         );
-      setCurrentQuantity(currentQuantity - amount);
-      onSaved?.(currentQuantity - amount);
+      const nextQuantity = body.product?.quantity ?? currentQuantity - amount;
+      setCurrentQuantity(nextQuantity);
+      onSaved?.(nextQuantity);
       setOpen(false);
       setValue('');
       setReason('');
       showToast('Descuento de stock registrado.');
+      window.dispatchEvent(
+        new CustomEvent('smal:product-updated', {
+          detail: {
+            productId,
+            quantity: nextQuantity,
+            status: body.product?.status,
+          },
+        }),
+      );
     } catch {
       showToast('Sin conexión con el servidor.', 'error');
     } finally {

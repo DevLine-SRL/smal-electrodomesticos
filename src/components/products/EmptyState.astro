@@ -1,5 +1,9 @@
 ---
+interface Props {
+  searchTerm?: string;
+}
 
+const { searchTerm = '' } = Astro.props;
 ---
 
 <div
@@ -8,7 +12,11 @@
   <h2
     class="font-display text-text-primary text-2xl font-extrabold tracking-tight"
   >
-    No hay productos para mostrar
+    {
+      searchTerm
+        ? 'No se encontraron productos'
+        : 'No hay productos para mostrar'
+    }
   </h2>
   <p class="text-text-secondary mx-auto mt-3 max-w-lg leading-relaxed">
     Prueba ajustando tu búsqueda o selecciona otra categoría. También puedes

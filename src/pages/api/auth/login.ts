@@ -1,8 +1,5 @@
 import type { APIRoute } from 'astro';
-import {
-  getAdminProfile,
-  sanitizeNextPath,
-} from '../../../services/auth/session';
+import { sanitizeNextPath } from '../../../services/auth/session';
 
 export const prerender = false;
 
@@ -17,7 +14,12 @@ interface LoginLock {
 const json = (body: unknown, status: number) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      'cache-control': 'private, no-store',
+      expires: '0',
+      pragma: 'no-cache',
+    },
   });
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,9 +47,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    const { data: lockData } = await supabase.rpc('get_login_lock', {
-      p_email: email,
-    });
+    const { data: lockData, error: lockError } = await supabase.rpc(
+      'get_login_lock',
+      {
+        p_email: email,
+      },
+    );
+    if (lockError) return json({ code: 'network_error' }, 503);
     const lock = lockData as unknown as LoginLock | null;
 
     if (lock?.locked) {
@@ -82,10 +88,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         return json({ code: 'auth_unavailable', authCode }, 502);
       }
 
-      const { data: failureData } = await supabase.rpc(
+      const { data: failureData, error: failureError } = await supabase.rpc(
         'register_failed_login',
         { p_email: email },
       );
+      if (failureError) return json({ code: 'network_error' }, 503);
       const failure = failureData as unknown as LoginLock | null;
 
       if (failure?.locked) {
@@ -104,14 +111,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const profile = await getAdminProfile(supabase, signIn.user.id);
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, active')
+      .eq('id', signIn.user.id)
+      .maybeSingle();
 
-    if (!profile) {
+    if (profileError) {
+      await supabase.auth.signOut();
+      return json({ code: 'network_error' }, 503);
+    }
+
+    if (!profile || profile.role !== 'admin' || !profile.active) {
       await supabase.auth.signOut();
       return json({ code: 'not_admin' }, 403);
     }
 
-    await supabase.rpc('reset_login_attempts', { p_email: email });
+    const { error: resetError } = await supabase.rpc('reset_login_attempts', {
+      p_email: email,
+    });
+    if (resetError) {
+      await supabase.auth.signOut();
+      return json({ code: 'network_error' }, 503);
+    }
 
     return json({ redirectTo: sanitizeNextPath(next) }, 200);
   } catch {

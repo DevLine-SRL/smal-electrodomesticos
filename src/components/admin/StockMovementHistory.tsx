@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { showToast } from './toast';
 
 type HistoryKind = 'stock' | 'price' | 'status';
@@ -21,14 +21,32 @@ export default function StockMovementHistory({
   const [movements, setMovements] = useState<HistoryEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
 
+  const loadHistory = useCallback(async () => {
+    const response = await fetch(`/api/admin/products/${productId}/history`);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      showToast('No se pudo cargar el historial.', 'error');
+      return false;
+    }
+    setMovements(Array.isArray(body.history) ? body.history : []);
+    setLoaded(true);
+    return true;
+  }, [productId]);
+
+  useEffect(() => {
+    const refreshAfterUpdate = (event: Event) => {
+      const detail = (event as CustomEvent<{ productId: string }>).detail;
+      if (detail?.productId === productId && loaded) void loadHistory();
+    };
+    window.addEventListener('smal:product-updated', refreshAfterUpdate);
+    return () =>
+      window.removeEventListener('smal:product-updated', refreshAfterUpdate);
+  }, [productId, loaded, loadHistory]);
+
   const toggle = async () => {
     if (!open && !loaded) {
-      const response = await fetch(`/api/admin/products/${productId}/history`);
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok)
-        return showToast('No se pudo cargar el historial.', 'error');
-      setMovements(Array.isArray(body.history) ? body.history : []);
-      setLoaded(true);
+      const success = await loadHistory();
+      if (!success) return;
     }
     setOpen((value) => !value);
   };
@@ -63,7 +81,9 @@ export default function StockMovementHistory({
                 >
                   {movement.title}
                 </span>
-                <div className="text-text-secondary mt-1">{movement.detail}</div>
+                <div className="text-text-secondary mt-1">
+                  {movement.detail}
+                </div>
                 <div className="text-text-muted mt-1">
                   {movement.userName ?? 'Sistema'} ·{' '}
                   {new Date(movement.created_at).toLocaleString('es-BO')}

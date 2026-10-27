@@ -7,6 +7,7 @@ export interface Category {
 export interface ProductListItem {
   id: string;
   name: string;
+  brand: string;
   slug: string;
   price: number;
   categoryName: string;
@@ -41,6 +42,7 @@ export type ProductStatusFilter = ProductStatus | 'todos';
 export interface AdminProductListItem {
   id: string;
   name: string;
+  brand: string;
   slug: string;
   price: number;
   quantity: number;
@@ -74,6 +76,7 @@ export interface ProductImage {
 export interface ProductDetail {
   id: string;
   name: string;
+  brand: string;
   slug: string;
   description: string | null;
   price: number;

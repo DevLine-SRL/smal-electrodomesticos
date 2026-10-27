@@ -9,81 +9,108 @@ interface Props {
 }
 
 const { productId, name, price, url, available, sold } = Astro.props;
-const number = (import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '').replace(
+const whatsappNumber = (import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '').replace(
   /\D/g,
   '',
 );
-const message = `Hola, me interesa ${name}. Precio: Bs ${price.toLocaleString('es-BO')}.\n${url}`;
-const href = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+const phoneNumber = (
+  import.meta.env.PUBLIC_PHONE_NUMBER?.trim() || whatsappNumber
+).replace(/\D/g, '');
+const message = `Hola, me interesa ${name}. Precio: Bs ${price.toLocaleString('es-BO')}. ${url}`;
+const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 ---
 
 <div class="mt-8">
   {
-    available && number ? (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        data-product-interest
-        data-product-id={productId}
-        class="bg-primary-400 text-primary-950 hover:bg-primary-300 focus-visible:outline-primary-400 flex min-h-14 w-full items-center justify-center rounded-full px-8 py-4 text-lg font-bold transition focus-visible:outline-2 focus-visible:outline-offset-4"
-      >
-        Me interesa · WhatsApp{' '}
-        <span aria-hidden="true" class="ml-3">
-          ↗
-        </span>
-      </a>
+    available ? (
+      <div class="grid gap-3">
+        {whatsappNumber ? (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-product-interest
+            data-product-id={productId}
+            data-channel="whatsapp"
+            class="bg-primary-400 text-primary-950 hover:bg-primary-300 focus-visible:outline-primary-400 flex min-h-14 w-full items-center justify-center rounded-full px-8 py-4 text-lg font-bold transition focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            Me interesa · WhatsApp
+            <span aria-hidden="true" class="ml-3">
+              ↗
+            </span>
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            class="bg-background-soft text-text-muted border-border-subtle min-h-14 w-full cursor-not-allowed rounded-full border px-8 py-4 font-bold"
+          >
+            WhatsApp no configurado
+          </button>
+        )}
+        {phoneNumber && (
+          <a
+            href={`tel:+${phoneNumber}`}
+            data-product-interest
+            data-product-id={productId}
+            data-channel="phone"
+            class="border-border-subtle text-text-secondary hover:border-primary-400 hover:text-primary-400 flex min-h-12 items-center justify-center rounded-full border px-6 py-3 font-semibold transition"
+          >
+            Llamar al +{phoneNumber}
+          </a>
+        )}
+      </div>
     ) : (
       <button
         type="button"
         disabled
         class="bg-background-soft text-text-muted border-border-subtle min-h-14 w-full cursor-not-allowed rounded-full border px-8 py-4 font-bold"
       >
-        {sold
-          ? 'Producto vendido'
-          : !available
-            ? 'Producto agotado'
-            : 'Contacto no disponible'}
+        {sold ? 'Producto vendido' : 'Producto agotado'}
       </button>
     )
   }
   <p class="text-text-muted mt-3 text-center text-sm">
     {
       available
-        ? number
+        ? whatsappNumber || phoneNumber
           ? 'Consulta por este producto directamente con nuestro equipo.'
-          : 'El contacto por WhatsApp estará disponible próximamente.'
+          : 'El contacto todavía no está configurado. Intenta nuevamente más tarde.'
         : 'Explora el catálogo para encontrar otros productos disponibles.'
     }
   </p>
 </div>
 
 <script>
-  const productLinks = document.querySelectorAll('[data-product-interest]');
+  document
+    .querySelectorAll<HTMLAnchorElement>('[data-product-interest]')
+    .forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const productId = link.dataset.productId;
+        const channel = link.dataset.channel;
+        if (!productId || (channel !== 'whatsapp' && channel !== 'phone'))
+          return;
 
-  productLinks.forEach((link) => {
-    link.addEventListener('click', async (event) => {
-      const anchor = event.currentTarget;
-      if (!(anchor instanceof HTMLAnchorElement)) return;
+        if (link.dataset.openPending === 'true') {
+          event.preventDefault();
+          return;
+        }
 
-      const productId = anchor.dataset.productId;
-      const targetHref = anchor.href;
+        // Let the browser follow the link immediately; awaiting logging here
+        // would make mobile app and new-tab launches look like blocked popups.
+        link.dataset.openPending = 'true';
+        window.setTimeout(() => {
+          delete link.dataset.openPending;
+        }, 1200);
 
-      if (!productId || !targetHref) return;
-
-      event.preventDefault();
-
-      try {
-        await fetch(`/api/products/${productId}/interest`, {
+        void fetch(`/api/products/${productId}/interest`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ channel: 'whatsapp' }),
+          body: JSON.stringify({ channel }),
+          keepalive: true,
+        }).catch(() => {
+          // Logging must never block the contact action.
         });
-      } catch {
-        // El registro de interés no bloquea el contacto.
-      } finally {
-        window.open(targetHref, '_blank', 'noopener,noreferrer');
-      }
+      });
     });
-  });
 </script>

@@ -48,6 +48,21 @@ const MAX_IMAGES = 4;
       </label>
       <label class="block sm:col-span-2">
         <span class="text-text-primary mb-2 block text-sm font-bold"
+          >Marca <span class="text-error-500">*</span></span
+        >
+        <input
+          name="brand"
+          required
+          maxlength="80"
+          autocomplete="organization"
+          class="field"
+          placeholder="Ej. Samsung, LG, Mabe"
+          value={product.brand}
+        />
+        <span data-error="brand" class="field-error"></span>
+      </label>
+      <label class="block sm:col-span-2">
+        <span class="text-text-primary mb-2 block text-sm font-bold"
           >Descripción</span
         >
         <textarea
@@ -59,40 +74,6 @@ const MAX_IMAGES = 4;
           >{product.description ?? ''}</textarea
         >
         <span data-error="description" class="field-error"></span>
-      </label>
-      <label class="block">
-        <span class="text-text-primary mb-2 block text-sm font-bold"
-          >Precio <span class="text-error-500">*</span></span
-        >
-        <input
-          name="price"
-          type="number"
-          required
-          min="0.01"
-          step="0.01"
-          inputmode="decimal"
-          class="field"
-          placeholder="0.00"
-          value={product.price}
-        />
-        <span data-error="price" class="field-error"></span>
-      </label>
-      <label class="block">
-        <span class="text-text-primary mb-2 block text-sm font-bold"
-          >Cantidad <span class="text-error-500">*</span></span
-        >
-        <input
-          name="quantity"
-          type="number"
-          required
-          min="0"
-          step="1"
-          inputmode="numeric"
-          class="field"
-          placeholder="0"
-          value={product.quantity}
-        />
-        <span data-error="quantity" class="field-error"></span>
       </label>
       <label class="block sm:col-span-2">
         <span class="text-text-primary mb-2 block text-sm font-bold"
@@ -316,6 +297,8 @@ const MAX_IMAGES = 4;
     const available = MAX_IMAGES - remaining;
     if (files.length > available)
       return `Solo puedes agregar ${available} imagen${available === 1 ? '' : 'es'} más (máximo ${MAX_IMAGES} en total).`;
+    if (remaining + files.length < 1)
+      return 'El producto debe conservar al menos una fotografía.';
     return '';
   };
 
@@ -393,7 +376,7 @@ const MAX_IMAGES = 4;
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!form || !submitButton) return;
-    ['name', 'price', 'quantity', 'categoryId', 'photos'].forEach((field) =>
+    ['name', 'brand', 'categoryId', 'photos'].forEach((field) =>
       setError(field),
     );
     if (message) message.className = 'hidden';
@@ -401,9 +384,7 @@ const MAX_IMAGES = 4;
     const values = new FormData(form);
     const productId = String(values.get('productId') ?? '');
     const name = String(values.get('name') ?? '').trim();
-    const price = Number(values.get('price'));
-    const quantityText = String(values.get('quantity') ?? '');
-    const quantity = Number(quantityText);
+    const brand = String(values.get('brand') ?? '').trim();
     const categoryId = String(values.get('categoryId') ?? '');
     const files = Array.from(photoInput?.files ?? []);
 
@@ -412,12 +393,8 @@ const MAX_IMAGES = 4;
       setError('name', 'El nombre es obligatorio.');
       valid = false;
     }
-    if (!Number.isFinite(price) || price <= 0) {
-      setError('price', 'Ingresa un precio mayor a cero.');
-      valid = false;
-    }
-    if (!quantityText || !Number.isInteger(quantity) || quantity < 0) {
-      setError('quantity', 'Ingresa una cantidad entera igual o mayor a cero.');
+    if (!brand || brand.length > 80) {
+      setError('brand', 'Ingresa una marca de hasta 80 caracteres.');
       valid = false;
     }
     if (!categoryId) {
@@ -438,9 +415,8 @@ const MAX_IMAGES = 4;
       // 1. Actualizar datos del producto
       const productData = new FormData();
       productData.set('name', name);
+      productData.set('brand', brand);
       productData.set('description', String(values.get('description') ?? ''));
-      productData.set('price', String(price));
-      productData.set('quantity', String(quantity));
       productData.set('categoryId', categoryId);
 
       const productResponse = await fetch(`/api/admin/products/${productId}`, {
@@ -462,32 +438,12 @@ const MAX_IMAGES = 4;
         return;
       }
 
-      // 2. Eliminar imágenes marcadas PRIMERO (antes de subir nuevas)
-      if (deletedImageIds.size > 0) {
-        const deleteResponse = await fetch(
-          `/api/admin/products/${productId}/images`,
-          {
-            method: 'DELETE',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ imageIds: Array.from(deletedImageIds) }),
-          },
-        );
-
-        if (!deleteResponse.ok) {
-          const deleteResult = await deleteResponse.json().catch(() => ({}));
-          showMessage(
-            deleteResult.message ??
-              'Los datos se guardaron pero no pudimos eliminar las imágenes.',
-            'error',
-          );
-          return;
-        }
-      }
-
-      // 3. Subir nuevas imágenes DESPUÉS de eliminar
-      if (files.length > 0) {
+      if (files.length > 0 || deletedImageIds.size > 0) {
         const imagesData = new FormData();
         files.forEach((file) => imagesData.append('photos', file));
+        deletedImageIds.forEach((id) =>
+          imagesData.append('deleteImageIds', id),
+        );
 
         const imagesResponse = await fetch(
           `/api/admin/products/${productId}/images`,
@@ -501,7 +457,7 @@ const MAX_IMAGES = 4;
           const imagesResult = await imagesResponse.json().catch(() => ({}));
           showMessage(
             imagesResult.message ??
-              'Los datos se guardaron pero no pudimos subir las nuevas imágenes.',
+              'No pudimos guardar los cambios de las fotografías.',
             'error',
           );
           return;

@@ -1,5 +1,7 @@
 ---
-export const prerender = true;
+// Esta página consulta Supabase y debe renderizarse con la configuración del
+// entorno en ejecución, no durante el build.
+export const prerender = false;
 
 import { supabase } from '../db/supabase';
 

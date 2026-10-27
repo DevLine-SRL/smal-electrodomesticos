@@ -3,6 +3,7 @@ import type { ProductListItem } from '../../types/products';
 interface ProductRow {
   id: string;
   name: string;
+  brand: string;
   slug: string;
   price: number;
   categories: { name: string } | { name: string }[] | null;
@@ -21,6 +22,7 @@ export const mapProductRow = (row: ProductRow): ProductListItem => {
   return {
     id: row.id,
     name: row.name,
+    brand: row.brand,
     slug: row.slug,
     price: row.price,
     categoryName: category?.name ?? 'Sin categoría',

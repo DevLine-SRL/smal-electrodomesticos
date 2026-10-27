@@ -4,6 +4,7 @@ import type { ProductDetail, ProductStatus } from '../../types/products';
 interface ProductRow {
   id: string;
   name: string;
+  brand: string;
   slug: string;
   description: string | null;
   price: number;
@@ -21,7 +22,7 @@ export const getProductDetail = async (
   const { data, error } = await client
     .from('products')
     .select(
-      'id, name, slug, description, price, quantity, status, category_id, categories(name), product_images(id, url, position)',
+      'id, name, brand, slug, description, price, quantity, status, category_id, categories(name), product_images(id, url, position)',
     )
     .eq('id', productId)
     .eq('active', true)
@@ -42,6 +43,7 @@ export const getProductDetail = async (
   return {
     id: row.id,
     name: row.name,
+    brand: row.brand,
     slug: row.slug,
     description: row.description,
     price: row.price,

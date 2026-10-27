@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { showToast } from './toast';
 
 interface Props {
@@ -18,6 +18,23 @@ export default function StockQuantityEditor({
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(String(quantity));
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    const syncQuantity = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{ productId: string; quantity?: number }>
+      ).detail;
+      if (
+        detail?.productId === productId &&
+        typeof detail.quantity === 'number'
+      ) {
+        setCurrentQuantity(detail.quantity);
+        setValue(String(detail.quantity));
+      }
+    };
+    window.addEventListener('smal:product-updated', syncQuantity);
+    return () =>
+      window.removeEventListener('smal:product-updated', syncQuantity);
+  }, [productId]);
   const save = async (confirmSold = false) => {
     const next = Number(value);
     if (!Number.isInteger(next) || next < 0)
@@ -32,22 +49,33 @@ export default function StockQuantityEditor({
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ quantity: next, confirmSold }),
       });
-      if (
-        res.status === 409 &&
-        sold &&
-        window.confirm(
-          'El producto está vendido. Cambiar su stock puede ser inconsistente. ¿Continuar?',
-        )
-      )
-        return void save(true);
-      if (!res.ok) throw new Error();
-      setCurrentQuantity(next);
-      onSaved?.(next);
+      if (res.status === 409 && sold && !confirmSold) {
+        if (
+          window.confirm(
+            'El producto está vendido. Cambiar su stock puede ser inconsistente. ¿Continuar?',
+          )
+        ) {
+          await save(true);
+        }
+        return;
+      }
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.code ?? 'update_failed');
+      const savedQuantity = body.product?.quantity ?? next;
+      const savedStatus = body.product?.status as
+        'available' | 'out_of_stock' | 'sold' | undefined;
+      setCurrentQuantity(savedQuantity);
+      onSaved?.(savedQuantity);
       setOpen(false);
       showToast(
-        next === 0
+        savedQuantity === 0
           ? 'Stock actualizado: producto agotado.'
           : 'Stock actualizado.',
+      );
+      window.dispatchEvent(
+        new CustomEvent('smal:product-updated', {
+          detail: { productId, quantity: savedQuantity, status: savedStatus },
+        }),
       );
     } catch {
       showToast('No se pudo actualizar el stock.', 'error');

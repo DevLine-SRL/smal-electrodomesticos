@@ -1,8 +1,10 @@
 import type { APIRoute } from 'astro';
+import { isSupportedImage } from '../../../../services/products/imageValidation';
 
 export const prerender = false;
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGES = 4;
 const IMAGE_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -53,6 +55,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const name = String(formData.get('name') ?? '').trim();
+  const brand = String(formData.get('brand') ?? '').trim();
   const description = String(formData.get('description') ?? '').trim();
   const priceText = String(formData.get('price') ?? '').trim();
   const quantityText = String(formData.get('quantity') ?? '').trim();
@@ -67,7 +70,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!name) errors.name = 'El nombre es obligatorio.';
   if (name.length > 160)
     errors.name = 'El nombre no puede superar 160 caracteres.';
-  if (!priceText || !Number.isFinite(price) || price <= 0) {
+  if (!brand) errors.brand = 'La marca es obligatoria.';
+  else if (brand.length > 80)
+    errors.brand = 'La marca no puede superar 80 caracteres.';
+  if (
+    !priceText ||
+    !Number.isFinite(price) ||
+    price <= 0 ||
+    Math.abs(price * 100 - Math.round(price * 100)) > 1e-8
+  ) {
     errors.price = 'Ingresa un precio mayor a cero.';
   }
   if (
@@ -81,22 +92,35 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!categoryId) errors.categoryId = 'Selecciona una categoría.';
   if (!photos.length) {
     errors.photos = 'Agrega al menos una fotografía del producto.';
+  } else if (photos.length > MAX_IMAGES) {
+    errors.photos = `Un producto puede tener como máximo ${MAX_IMAGES} fotografías.`;
   } else if (photos.some((photo) => !IMAGE_TYPES.has(photo.type))) {
     errors.photos = 'Solo se aceptan imágenes JPG, PNG, WEBP o GIF.';
   } else if (photos.some((photo) => photo.size > MAX_FILE_SIZE)) {
     errors.photos = 'Cada imagen debe pesar como máximo 5 MB.';
+  } else if (
+    !(await Promise.all(photos.map(isSupportedImage))).every(Boolean)
+  ) {
+    errors.photos =
+      'El contenido de una fotografía no coincide con su formato.';
   }
 
   if (Object.keys(errors).length > 0) {
     return json({ errors, message: 'Revisa los campos marcados.' }, 422);
   }
 
-  const { data: category } = await locals.supabase
+  const { data: category, error: categoryError } = await locals.supabase
     .from('categories')
     .select('id')
     .eq('id', categoryId)
     .eq('active', true)
     .maybeSingle();
+  if (categoryError) {
+    return json(
+      { message: 'No pudimos validar la categoría. Inténtalo nuevamente.' },
+      503,
+    );
+  }
   if (!category) {
     return json(
       {
@@ -106,11 +130,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 
-  const { data: existing } = await locals.supabase
+  const { data: existing, error: duplicateCheckError } = await locals.supabase
     .from('products')
     .select('id')
     .ilike('name', name)
     .limit(1);
+  if (duplicateCheckError) {
+    return json(
+      { message: 'No pudimos validar el nombre. Inténtalo nuevamente.' },
+      503,
+    );
+  }
   const duplicateWarning = Boolean(existing?.length);
 
   const productId = crypto.randomUUID();
@@ -137,10 +167,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .insert({
         id: productId,
         name,
+        brand,
         slug: toSlug(name),
         description: description || null,
         price,
         quantity,
+        status: quantity === 0 ? 'out_of_stock' : 'available',
         category_id: category.id,
         created_by: locals.user?.id ?? null,
       });

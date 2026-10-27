@@ -42,6 +42,7 @@ const { product, view = 'grid' } = Astro.props;
             <p class="text-primary-300 text-xs font-semibold tracking-[0.14em] uppercase">
               {product.categoryName}
             </p>
+            <p class="text-text-secondary mt-1 text-xs">{product.brand}</p>
             <h3 class="text-text-primary mt-1 line-clamp-2 text-base leading-snug font-bold">
               {product.name}
             </h3>
@@ -68,6 +69,7 @@ const { product, view = 'grid' } = Astro.props;
             productName={product.name}
             initialStatus={product.status}
             initialSource={product.lastStatusSource}
+            quantity={product.quantity}
           />
           <StockDeduction
             client:idle
@@ -174,6 +176,7 @@ const { product, view = 'grid' } = Astro.props;
               client:idle
               productId={product.id}
               productName={product.name}
+              quantity={product.quantity}
               initialStatus={product.status}
               initialSource={product.lastStatusSource}
             />

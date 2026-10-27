@@ -31,6 +31,9 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   if (!status || !VALID_STATUSES.includes(status as ProductStatus)) {
     return json({ code: 'invalid_status' }, 400);
   }
+  if (status === 'sold') {
+    return json({ code: 'sale_mode_required' }, 409);
+  }
 
   try {
     const result = await setProductStatus(

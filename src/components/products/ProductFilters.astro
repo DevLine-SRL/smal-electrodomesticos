@@ -16,13 +16,13 @@ const { categories, searchTerm, selectedCategorySlug } = Astro.props;
 >
   <label class="flex flex-col gap-2">
     <span class="text-text-secondary text-sm font-semibold"
-      >Buscar por nombre</span
+      >Buscar por nombre o marca</span
     >
     <input
       type="search"
       name="q"
       value={searchTerm}
-      placeholder="Ej: Refrigeradora, TV, licuadora"
+      placeholder="Ej: Samsung, refrigeradora, licuadora"
       class="border-border-subtle bg-background-soft text-text-primary placeholder:text-text-disabled focus:border-primary-500 rounded-xl border px-4 py-2.5 text-sm outline-none"
     />
   </label>

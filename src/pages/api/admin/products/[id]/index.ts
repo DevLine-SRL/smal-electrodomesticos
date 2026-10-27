@@ -10,19 +10,7 @@ const json = (body: unknown, status: number) =>
     headers: { 'content-type': 'application/json' },
   });
 
-const toSlug = (name: string) => {
-  const base = name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
-
-  return `${base || 'producto'}`;
-};
-
-// El middleware ya garantizo que hay un admin activo antes de llegar aqui.
+// The middleware has already checked for an active administrator session.
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
   const productId = params.id;
   if (!productId) return json({ code: 'invalid_request' }, 400);
@@ -35,54 +23,49 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   }
 
   const name = String(formData.get('name') ?? '').trim();
+  const brand = String(formData.get('brand') ?? '').trim();
   const description = String(formData.get('description') ?? '').trim();
-  const priceText = String(formData.get('price') ?? '').trim();
-  const quantityText = String(formData.get('quantity') ?? '').trim();
   const categoryId = String(formData.get('categoryId') ?? '').trim();
-  const price = Number(priceText);
-  const quantity = Number(quantityText);
-
   const errors: FieldErrors = {};
+
   if (!name) errors.name = 'El nombre es obligatorio.';
-  if (name.length > 160)
+  else if (name.length > 160)
     errors.name = 'El nombre no puede superar 160 caracteres.';
-  if (!priceText || !Number.isFinite(price) || price <= 0) {
-    errors.price = 'Ingresa un precio mayor a cero.';
-  }
-  if (
-    !quantityText ||
-    !Number.isInteger(quantity) ||
-    !Number.isFinite(quantity) ||
-    quantity < 0
-  ) {
-    errors.quantity = 'Ingresa una cantidad entera igual o mayor a cero.';
-  }
+  if (!brand) errors.brand = 'La marca es obligatoria.';
+  else if (brand.length > 80)
+    errors.brand = 'La marca no puede superar 80 caracteres.';
+  if (description.length > 2000)
+    errors.description = 'La descripción no puede superar 2000 caracteres.';
   if (!categoryId) errors.categoryId = 'Selecciona una categoría.';
 
-  if (Object.keys(errors).length > 0) {
+  if (Object.keys(errors).length) {
     return json({ errors, message: 'Revisa los campos marcados.' }, 422);
   }
 
-  // Verificar que el producto existe y esta activo
-  const { data: existing } = await locals.supabase
+  const { data: product, error: productError } = await locals.supabase
     .from('products')
-    .select('id, name')
+    .select('id')
     .eq('id', productId)
     .eq('active', true)
     .maybeSingle();
 
-  if (!existing) {
+  if (productError) {
+    return json({ message: 'No pudimos consultar el producto.' }, 503);
+  }
+  if (!product) {
     return json({ message: 'El producto no existe o fue eliminado.' }, 404);
   }
 
-  // Verificar que la categoría existe y esta activa
-  const { data: category } = await locals.supabase
+  const { data: category, error: categoryError } = await locals.supabase
     .from('categories')
     .select('id')
     .eq('id', categoryId)
     .eq('active', true)
     .maybeSingle();
 
+  if (categoryError) {
+    return json({ message: 'No pudimos validar la categoría.' }, 503);
+  }
   if (!category) {
     return json(
       {
@@ -92,36 +75,29 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     );
   }
 
-  // Construir slug solo si el nombre cambio
-  const updates: {
-    name: string;
-    description: string | null;
-    price: number;
-    quantity: number;
-    category_id: string;
-    slug?: string;
-  } = {
-    name,
-    description: description || null,
-    price,
-    quantity,
-    category_id: category.id,
-  };
-
-  if (name !== existing.name) {
-    updates.slug = toSlug(name);
-  }
-
-  const { error } = await locals.supabase
+  // Keep the original slug so previously shared product links remain stable.
+  // Price and stock have dedicated RPCs that atomically record their history.
+  const { data: updated, error: updateError } = await locals.supabase
     .from('products')
-    .update(updates)
-    .eq('id', productId);
+    .update({
+      name,
+      brand,
+      description: description || null,
+      category_id: category.id,
+    })
+    .eq('id', productId)
+    .eq('active', true)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (updateError) {
     return json(
       { message: 'No pudimos guardar los cambios. Inténtalo nuevamente.' },
       503,
     );
+  }
+  if (!updated) {
+    return json({ message: 'El producto ya no existe.' }, 404);
   }
 
   return json({ productId }, 200);

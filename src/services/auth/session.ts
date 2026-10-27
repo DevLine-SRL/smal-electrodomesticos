@@ -45,7 +45,13 @@ export const sanitizeNextPath = (
   value: string | null,
   fallback = '/admin',
 ): string => {
-  if (!value) return fallback;
-  if (!value.startsWith('/') || value.startsWith('//')) return fallback;
-  return value;
+  if (!value || !value.startsWith('/')) return fallback;
+  try {
+    const base = 'https://smal.invalid';
+    const target = new URL(value, base);
+    if (target.origin !== base) return fallback;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return fallback;
+  }
 };

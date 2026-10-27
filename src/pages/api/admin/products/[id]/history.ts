@@ -83,10 +83,18 @@ export const GET: APIRoute = async ({ params, locals }) => {
     const change = Number(row.quantity_change);
     const reason = typeof row.reason === 'string' ? row.reason.trim() : '';
     if (row.changed_by) userIds.add(row.changed_by);
+    const title =
+      row.movement_type === 'sale'
+        ? 'Venta registrada'
+        : row.movement_type === 'deduction'
+          ? 'Resta de stock'
+          : row.movement_type === 'restock'
+            ? 'Reposición de stock'
+            : 'Ajuste de stock';
     return toHistoryEntry(
       'stock',
       row,
-      row.movement_type === 'deduction' ? 'Resta de stock' : 'Ajuste de stock',
+      title,
       `${before} → ${after} (${change >= 0 ? '+' : ''}${change} u)${reason ? ` · ${reason}` : ''}`,
     );
   });
@@ -120,7 +128,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       id: item.id,
       kind: item.kind,
       created_at: item.created_at,
-      userName: item.__userId ? usersById.get(item.__userId) ?? null : null,
+      userName: item.__userId ? (usersById.get(item.__userId) ?? null) : null,
       title: item.title,
       detail: item.detail,
     }))

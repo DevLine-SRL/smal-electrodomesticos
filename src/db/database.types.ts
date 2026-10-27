@@ -292,6 +292,7 @@ export type Database = {
           created_by: string | null;
           description: string | null;
           id: string;
+          brand: string;
           name: string;
           price: number;
           quantity: number;
@@ -306,6 +307,7 @@ export type Database = {
           created_by?: string | null;
           description?: string | null;
           id?: string;
+          brand?: string;
           name: string;
           price: number;
           quantity?: number;
@@ -320,6 +322,7 @@ export type Database = {
           created_by?: string | null;
           description?: string | null;
           id?: string;
+          brand?: string;
           name?: string;
           price?: number;
           quantity?: number;
@@ -393,6 +396,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean };
       normalize_login_email: { Args: { p_email: string }; Returns: string };
       register_failed_login: { Args: { p_email: string }; Returns: Json };
+      record_product_sale: {
+        Args: { p_product_id: string; p_sale_mode: string };
+        Returns: Database['public']['Tables']['products']['Row'];
+      };
       reset_login_attempts: { Args: { p_email: string }; Returns: undefined };
       set_product_status: {
         Args: {

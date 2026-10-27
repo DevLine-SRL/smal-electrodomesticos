@@ -43,6 +43,7 @@ const buildAdminPageHref =
 interface AdminProductRow {
   id: string;
   name: string;
+  brand: string;
   slug: string;
   price: number;
   quantity: number;
@@ -72,6 +73,7 @@ const mapAdminProductRow = (
   return {
     id: row.id,
     name: row.name,
+    brand: row.brand,
     slug: row.slug,
     price: row.price,
     quantity: row.quantity,
@@ -153,7 +155,11 @@ export const getAdminProducts = async (
     .from('products')
     .select('id', { count: 'exact', head: true })
     .eq('active', true);
-  if (searchTerm) countQuery = countQuery.ilike('name', `%${searchTerm}%`);
+  if (searchTerm) {
+    const escapedSearch = searchTerm.replace(/[\\"(),]/g, ' ').trim();
+    const searchFilter = `name.ilike.%${escapedSearch}%,brand.ilike.%${escapedSearch}%`;
+    countQuery = countQuery.or(searchFilter);
+  }
   if (selectedStatus !== 'todos') {
     countQuery = countQuery.eq('status', selectedStatus);
   }
@@ -172,12 +178,16 @@ export const getAdminProducts = async (
   let listQuery = client
     .from('products')
     .select(
-      'id, name, slug, price, quantity, status, category_id, product_images(url, position), categories(name)',
+      'id, name, brand, slug, price, quantity, status, category_id, product_images(url, position), categories(name)',
     )
     .eq('active', true)
     .order('created_at', { ascending: false })
     .range(from, to);
-  if (searchTerm) listQuery = listQuery.ilike('name', `%${searchTerm}%`);
+  if (searchTerm) {
+    const escapedSearch = searchTerm.replace(/[\\"(),]/g, ' ').trim();
+    const searchFilter = `name.ilike.%${escapedSearch}%,brand.ilike.%${escapedSearch}%`;
+    listQuery = listQuery.or(searchFilter);
+  }
   if (selectedStatus !== 'todos') {
     listQuery = listQuery.eq('status', selectedStatus);
   }

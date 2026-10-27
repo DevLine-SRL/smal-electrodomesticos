@@ -5,7 +5,7 @@ export async function getProductDetail(identifier: string, byId = false) {
   const { data, error } = await supabase
     .from('products')
     .select(
-      'id, slug, name, description, price, quantity, status, categories(name), product_images(id, url, position)',
+      'id, slug, name, brand, description, price, quantity, status, categories(name), product_images(id, url, position)',
     )
     .eq('active', true)
     .eq(byId ? 'id' : 'slug', identifier)
@@ -24,6 +24,7 @@ export async function getProductDetail(identifier: string, byId = false) {
     id: data.id,
     slug: data.slug,
     name: data.name,
+    brand: data.brand,
     description: data.description,
     price: data.price,
     status: data.status,

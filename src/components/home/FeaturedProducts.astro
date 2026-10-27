@@ -4,9 +4,12 @@ import { supabase } from '../../db/supabase';
 
 const { data: rows } = await supabase
   .from('products')
-  .select('id, name, price, product_images(url, position), categories(name)')
+  .select(
+    'id, name, brand, slug, price, product_images(url, position), categories(name)',
+  )
   .eq('active', true)
   .eq('status', 'available')
+  .gt('quantity', 0)
   .order('created_at', { ascending: false })
   .limit(6);
 
@@ -21,6 +24,8 @@ const products = (rows ?? []).map((row) => {
   return {
     id: row.id,
     name: row.name,
+    brand: row.brand,
+    slug: row.slug,
     price: row.price,
     categoryName: category?.name ?? 'Sin categoría',
     imageUrl: images[0]?.url ?? null,
@@ -108,8 +113,14 @@ const products = (rows ?? []).map((row) => {
                 <p class="text-primary-300 text-xs font-semibold tracking-[0.14em] uppercase">
                   {product.categoryName}
                 </p>
+                <p class="text-text-secondary mt-2 text-sm">{product.brand}</p>
                 <h3 class="text-text-primary mt-2 text-lg leading-snug font-bold">
-                  {product.name}
+                  <a
+                    href={`/producto/${encodeURIComponent(product.slug)}`}
+                    class="focus-visible:text-primary-300 hover:text-primary-300 focus-visible:outline-primary-400 rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                  >
+                    {product.name}
+                  </a>
                 </h3>
                 <p class="text-primary-400 mt-4 text-2xl font-extrabold">
                   Bs {product.price.toLocaleString('es-BO')}

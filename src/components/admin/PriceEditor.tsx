@@ -23,7 +23,7 @@ export default function PriceEditor({
     if (
       !Number.isFinite(next) ||
       next <= 0 ||
-      Math.round(next * 100) !== next * 100
+      Math.abs(next * 100 - Math.round(next * 100)) > 1e-8
     )
       return showToast('Ingresa un precio válido mayor a Bs 0.', 'error');
     if (
@@ -45,6 +45,9 @@ export default function PriceEditor({
       onSaved?.(next);
       setOpen(false);
       showToast('Precio actualizado.');
+      window.dispatchEvent(
+        new CustomEvent('smal:product-updated', { detail: { productId } }),
+      );
     } catch {
       showToast('No se pudo actualizar el precio.', 'error');
     } finally {

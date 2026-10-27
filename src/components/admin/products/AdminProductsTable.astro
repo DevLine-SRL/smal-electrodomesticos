@@ -19,11 +19,12 @@ const formatPrice = (price: number) =>
     </p>
   ) : (
     <div class="border-border-subtle bg-card overflow-x-auto rounded-2xl border">
-      <table class="w-full min-w-[720px] border-collapse text-left text-sm">
+      <table class="w-full min-w-[820px] border-collapse text-left text-sm">
         <thead class="border-border-subtle text-text-muted border-b text-xs uppercase">
           <tr>
             <th class="px-4 py-3 font-semibold">Producto</th>
             <th class="px-4 py-3 font-semibold">Categoría</th>
+            <th class="px-4 py-3 font-semibold">Marca</th>
             <th class="px-4 py-3 font-semibold">Precio</th>
             <th class="px-4 py-3 font-semibold">Stock</th>
             <th class="px-4 py-3 font-semibold">Estado</th>
@@ -53,6 +54,7 @@ const formatPrice = (price: number) =>
               <td class="text-text-secondary px-4 py-3">
                 {product.categoryName}
               </td>
+              <td class="text-text-secondary px-4 py-3">{product.brand}</td>
               <td class="text-text-secondary px-4 py-3 whitespace-nowrap">
                 {formatPrice(product.price)}
               </td>
@@ -62,6 +64,7 @@ const formatPrice = (price: number) =>
                   client:idle
                   productId={product.id}
                   productName={product.name}
+                  quantity={product.quantity}
                   initialStatus={product.status}
                   initialSource={product.lastStatusSource}
                 />
